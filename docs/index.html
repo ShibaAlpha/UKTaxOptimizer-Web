@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>UK Tax Optimizer</title>
+    <style>
+        :root { --primary: #0066CC; --success: #10B981; --warning: #F59E0B; --danger: #EF4444; --background: #F9FAFB; --card: #FFFFFF; --text: #1F2937; --text-secondary: #6B7280; --border: #E5E7EB; --radius: 16px; --shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--background); color: var(--text); min-height: 100vh; padding-bottom: 80px; }
+        .header { background: var(--card); padding: 16px 20px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 20px; font-weight: 600; }
+        .tabs { display: flex; background: var(--card); border-bottom: 1px solid var(--border); position: sticky; top: 60px; z-index: 99; overflow-x: auto; }
+        .tab { flex: 0 0 auto; padding: 12px 16px; text-align: center; font-size: 12px; color: var(--text-secondary); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
+        .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .tab svg { display: block; margin: 0 auto 4px; width: 24px; height: 24px; }
+        .content { display: none; padding: 16px; }
+        .content.active { display: block; }
+        .card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; box-shadow: var(--shadow); }
+        .card-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .summary-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+        .summary-item:last-child { border-bottom: none; }
+        .summary-label { font-size: 14px; color: var(--text-secondary); }
+        .summary-value { font-size: 18px; font-weight: 600; }
+        .summary-value.green { color: var(--success); }
+        .summary-value.red { color: var(--danger); }
+        .summary-value.blue { color: var(--primary); }
+        .income-item { display: flex; align-items: center; padding: 12px; background: var(--background); border-radius: 12px; margin-bottom: 8px; }
+        .income-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 18px; }
+        .income-icon.salary { background: #DBEAFE; }
+        .income-icon.interest { background: #FEF3C7; }
+        .income-icon.dividend { background: #D1FAE5; }
+        .income-icon.capital { background: #FCE7F3; }
+        .income-icon.rental { background: #E0E7FF; }
+        .income-info { flex: 1; }
+        .income-type { font-size: 14px; font-weight: 500; }
+        .income-desc { font-size: 12px; color: var(--text-secondary); }
+        .income-amount { font-size: 16px; font-weight: 600; color: var(--success); margin-right: 12px; }
+        .delete-btn { width: 32px; height: 32px; border: none; background: none; color: var(--danger); cursor: pointer; font-size: 18px; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all 0.2s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: var(--background); color: var(--text); border: 1px solid var(--border); }
+        .btn-add { background: var(--primary); color: white; padding: 8px 16px; border-radius: 8px; font-size: 13px; }
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; }
+        .form-input { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 12px; font-size: 16px; background: var(--card); }
+        .form-select { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 12px; font-size: 16px; background: var(--card); }
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+        .modal.active { display: flex; }
+        .modal-content { background: var(--card); border-radius: var(--radius); width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+        .modal-title { font-size: 18px; font-weight: 600; }
+        .modal-close { background: none; border: none; font-size: 24px; color: var(--text-secondary); cursor: pointer; }
+        .modal-body { padding: 20px; }
+        .modal-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; gap: 12px; }
+        .modal-footer .btn { flex: 1; }
+        .empty { text-align: center; padding: 40px 20px; color: var(--text-secondary); }
+        .lang-toggle { position: fixed; top: 16px; right: 16px; z-index: 101; display: flex; gap: 4px; }
+        .lang-btn { padding: 6px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; border: 1px solid var(--border); background: var(--card); }
+        .lang-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .suggestion-item { background: var(--background); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+        .suggestion-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .suggestion-title { font-size: 14px; font-weight: 600; }
+        .suggestion-badge { font-size: 10px; padding: 4px 8px; border-radius: 10px; font-weight: 500; }
+        .suggestion-badge.high { background: #FEE2E2; color: #DC2626; }
+        .suggestion-badge.medium { background: #FEF3C7; color: #D97706; }
+        .suggestion-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; }
+        .suggestion-savings { font-size: 14px; color: var(--success); font-weight: 600; }
+        .knowledge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .knowledge-item { background: var(--background); border-radius: 12px; padding: 16px 12px; text-align: center; cursor: pointer; }
+        .knowledge-item:active { transform: scale(0.95); }
+        .knowledge-icon { font-size: 24px; margin-bottom: 8px; }
+        .knowledge-label { font-size: 12px; color: var(--text-secondary); }
+        .rate-card { background: var(--background); border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .rate-name { font-size: 14px; }
+        .rate-value { font-size: 16px; font-weight: 600; color: var(--primary); }
+        .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border); }
+        .toggle { width: 48px; height: 28px; border-radius: 14px; background: var(--border); position: relative; cursor: pointer; }
+        .toggle.active { background: var(--primary); }
+        .toggle::after { content: ''; position: absolute; width: 22px; height: 22px; border-radius: 50%; background: white; top: 3px; left: 3px; transition: transform 0.2s; }
+        .toggle.active::after { transform: translateX(20px); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-in { animation: fadeIn 0.3s ease-out; }
+    </style>
+</head>
+<body>
+    <div class="lang-toggle">
+        <button class="lang-btn active" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" onclick="setLang('zh')">中文</button>
+    </div>
+
+    <header class="header">
+        <h1>🇬🇧 UK Tax Optimizer</h1>
+    </header>
+
+    <nav class="tabs">
+        <div class="tab active" onclick="switchTab('calc')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/></svg>
+            <span data-i18n="tab_calc">Calculator</span>
+        </div>
+        <div class="tab" onclick="switchTab('optimize')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3"/></svg>
+            <span data-i18n="tab_optimize">Optimize</span>
+        </div>
+        <div class="tab" onclick="switchTab('guide')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6.042A8.967 8.967 0 006 6a8.967 8.967 0 00-6 6.042"/></svg>
+            <span data-i18n="tab_guide">Guide</span>
+        </div>
+        <div class="tab" onclick="switchTab('settings')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>
+            <span data-i18n="tab_settings">Settings</span>
+        </div>
+    </nav>
+
+    <div id="tab-calc" class="content active">
+        <div class="card animate-in">
+            <div class="card-title"><span data-i18n="summary_title">Your Tax Summary</span></div>
+            <div class="summary-item"><span class="summary-label" data-i18n="gross_income">Gross Income</span><span class="summary-value blue" id="gross-income">£0</span></div>
+            <div class="summary-item"><span class="summary-label" data-i18n="total_tax">Total Tax</span><span class="summary-value red" id="total-tax">£0</span></div>
+            <div class="summary-item"><span class="summary-label" data-i18n="net_income">Net Income</span><span class="summary-value green" id="net-income">£0</span></div>
+            <div class="summary-item"><span class="summary-label" data-i18n="effective_rate">Effective Rate</span><span class="summary-value" id="effective-rate">0%</span></div>
+        </div>
+
+        <div class="card animate-in">
+            <div class="card-title"><span data-i18n="income_sources">Income Sources</span><button class="btn btn-add" onclick="openModal('income')">+ Add</button></div>
+            <div id="income-list"><div class="empty"><p data-i18n="no_income">No income added yet</p></div></div>
+        </div>
+
+        <div class="card animate-in">
+            <div class="card-title"><span data-i18n="deductions">Deductions</span><button class="btn btn-add" onclick="openModal('deduction')">+ Add</button></div>
+            <div id="deduction-list"><div class="empty"><p data-i18n="no_deductions">No deductions added yet</p></div></div>
+        </div>
+    </div>
+
+    <div id="tab-optimize" class="content">
+        <div class="card animate-in">
+            <div class="card-title" data-i18n="optimization_tips">Tax Optimization Tips</div>
+            <div id="suggestions-list"><div class="empty"><p data-i18n="add_income_tips">Add income to see suggestions</p></div></div>
+        </div>
+    </div>
+
+    <div id="tab-guide" class="content">
+        <div class="card animate-in">
+            <div class="card-title" data-i18n="tax_rates_2024">Income Tax Rates (2024/25)</div>
+            <div class="rate-card"><span class="rate-name">Personal Allowance</span><span class="rate-value">£12,570 @ 0%</span></div>
+            <div class="rate-card"><span class="rate-name">Basic Rate</span><span class="rate-value">£12,571-50,270 @ 20%</span></div>
+            <div class="rate-card"><span class="rate-name">Higher Rate</span><span class="rate-value">£50,271-125,140 @ 40%</span></div>
+            <div class="rate-card"><span class="rate-name">Additional Rate</span><span class="rate-value">Over £125,140 @ 45%</span></div>
+        </div>
+        <div class="card animate-in">
+            <div class="card-title" data-i18n="annual_allowances">Annual Allowances</div>
+            <div class="knowledge-grid">
+                <div class="knowledge-item"><div class="knowledge-icon">🏦</div><div class="knowledge-label">ISA<br>£20,000</div></div>
+                <div class="knowledge-item"><div class="knowledge-icon">💼</div><div class="knowledge-label">Pension<br>£60,000</div></div>
+                <div class="knowledge-item"><div class="knowledge-icon">📈</div><div class="knowledge-label">CGT<br>£3,000</div></div>
+                <div class="knowledge-item"><div class="knowledge-icon">💰</div><div class="knowledge-label">Dividend<br>£500</div></div>
+                <div class="knowledge-item"><div class="knowledge-icon">💵</div><div class="knowledge-label">PSA<br>£1,000</div></div>
+                <div class="knowledge-item"><div class="knowledge-icon">🛒</div><div class="knowledge-label">Trading<br>£1,000</div></div>
+            </div>
+        </div>
+        <div class="card animate-in">
+            <div class="card-title" data-i18n="bank_rates">Bank of England Rate</div>
+            <div class="rate-card"><span class="rate-name">🏦 Base Rate</span><span class="rate-value">4.5%</span></div>
+        </div>
+    </div>
+
+    <div id="tab-settings" class="content">
+        <div class="card animate-in">
+            <div class="card-title" data-i18n="tax_settings">Tax Settings</div>
+            <div class="settings-item"><span data-i18n="tax_year">Tax Year</span>
+                <select class="form-select" style="width:auto;" id="tax-year-select" onchange="updateTaxYear()">
+                    <option value="2024/25">2024/25</option><option value="2025/26">2025/26</option>
+                </select>
+            </div>
+            <div class="settings-item"><span data-i18n="scottish_taxpayer">Scottish Taxpayer</span><div class="toggle" id="scottish-toggle" onclick="toggleScottish()"></div></div>
+        </div>
+        <div class="card animate-in">
+            <div class="card-title" data-i18n="data">Data</div>
+            <div class="settings-item" onclick="clearAllData()" style="cursor:pointer;"><span style="color:var(--danger);" data-i18n="clear_all">Clear All Data</span></div>
+        </div>
+    </div>
+
+    <div id="modal-income" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><span class="modal-title" data-i18n="add_income">Add Income</span><button class="modal-close" onclick="closeModal('income')">&times;</button></div>
+            <div class="modal-body">
+                <div class="form-group"><label class="form-label" data-i18n="income_type">Income Type</label>
+                    <select class="form-select" id="income-type">
+                        <option value="salary" data-i18n="income_salary">Salary</option>
+                        <option value="interest" data-i18n="income_interest">Interest</option>
+                        <option value="dividend" data-i18n="income_dividend">Dividend</option>
+                        <option value="capital" data-i18n="income_capital">Capital Gains</option>
+                        <option value="rental" data-i18n="income_rental">Rental</option>
+                    </select>
+                </div>
+                <div class="form-group"><label class="form-label" data-i18n="amount">Amount (£)</label><input type="number" class="form-input" id="income-amount" placeholder="0"></div>
+                <div class="form-group"><label class="form-label" data-i18n="description">Description</label><input type="text" class="form-input" id="income-desc" placeholder=""></div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('income')" data-i18n="cancel">Cancel</button><button class="btn btn-primary" onclick="saveIncome()" data-i18n="save">Save</button></div>
+        </div>
+    </div>
+
+    <div id="modal-deduction" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><span class="modal-title" data-i18n="add_deduction">Add Deduction</span><button class="modal-close" onclick="closeModal('deduction')">&times;</button></div>
+            <div class="modal-body">
+                <div class="form-group"><label class="form-label" data-i18n="deduction_type">Deduction Type</label>
+                    <select class="form-select" id="deduction-type">
+                        <option value="pension" data-i18n="deduction_pension">Pension Contribution</option>
+                        <option value="gift" data-i18n="deduction_gift">Gift Aid</option>
+                        <option value="mortgage" data-i18n="deduction_mortgage">Mortgage Interest</option>
+                    </select>
+                </div>
+                <div class="form-group"><label class="form-label" data-i18n="amount">Amount (£)</label><input type="number" class="form-input" id="deduction-amount" placeholder="0"></div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('deduction')" data-i18n="cancel">Cancel</button><button class="btn btn-primary" onclick="saveDeduction()" data-i18n="save">Save</button></div>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            en: { tab_calc:'Calculator',tab_optimize:'Optimize',tab_guide:'Guide',tab_settings:'Settings',summary_title:'Your Tax Summary',gross_income:'Gross Income',total_tax:'Total Tax',net_income:'Net Income',effective_rate:'Effective Rate',income_sources:'Income Sources',deductions:'Deductions',no_income:'No income added yet',no_deductions:'No deductions added yet',add_income_tips:'Add income to see suggestions',optimization_tips:'Tax Optimization Tips',tax_rates_2024:'Income Tax Rates (2024/25)',annual_allowances:'Annual Allowances',bank_rates:'Bank of England Rate',tax_settings:'Tax Settings',tax_year:'Tax Year',scottish_taxpayer:'Scottish Taxpayer',data:'Data',clear_all:'Clear All Data',add_income:'Add Income',income_type:'Income Type',amount:'Amount (£)',description:'Description (optional)',save:'Save',cancel:'Cancel',add_deduction:'Add Deduction',deduction_type:'Deduction Type',income_salary:'Salary',income_interest:'Interest',income_dividend:'Dividend',income_capital:'Capital Gains',income_rental:'Rental',deduction_pension:'Pension Contribution',deduction_gift:'Gift Aid',deduction_mortgage:'Mortgage Interest' },
+            zh: { tab_calc:'计算器',tab_optimize:'优化',tab_guide:'指南',tab_settings:'设置',summary_title:'您的税务摘要',gross_income:'总收入',total_tax:'总税款',net_income:'净收入',effective_rate:'有效税率',income_sources:'收入来源',deductions:'扣除项',no_income:'暂无收入记录',no_deductions:'暂无扣除记录',add_income_tips:'添加收入以查看建议',optimization_tips:'税务优化建议',tax_rates_2024:'所得税率 (2024/25)',annual_allowances:'年度免税额',bank_rates:'英格兰银行利率',tax_settings:'税务设置',tax_year:'税务年度',scottish_taxpayer:'苏格兰纳税人',data:'数据',clear_all:'清除所有数据',add_income:'添加收入',income_type:'收入类型',amount:'金额 (£)',description:'描述（可选）',save:'保存',cancel:'取消',add_deduction:'添加扣除',deduction_type:'扣除类型',income_salary:'工资',income_interest:'利息',income_dividend:'股息',income_capital:'资本收益',income_rental:'租金',deduction_pension:'养老金供款',deduction_gift:'慈善捐款',deduction_mortgage:'房贷利息' }
+        };
+        let state = { incomes:[],deductions:[],taxYear:'2024/25',isScottish:false,lang:'en' };
+        const iconMap = { salary:'💰',interest:'💵',dividend:'📊',capital:'📈',rental:'🏠' };
+        const typeLabels = { en:{salary:'Salary',interest:'Interest',dividend:'Dividend',capital:'Capital Gains',rental:'Rental'},zh:{salary:'工资',interest:'利息',dividend:'股息',capital:'资本收益',rental:'租金'} };
+        
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+            document.querySelectorAll('.content').forEach(c=>c.classList.remove('active'));
+            document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active');
+            document.getElementById(`tab-${tab}`).classList.add('active');
+        }
+        
+        function setLang(lang) {
+            state.lang = lang;
+            document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+            document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`).classList.add('active');
+            document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent = translations[lang][el.dataset.i18n] || el.textContent);
+            renderAll();
+        }
+        
+        function calculateTax() {
+            const PA = 12570, BR = 50270, HR = 125140, BR_RATE = 0.20, HR_RATE = 0.40, AR_RATE = 0.45;
+            let totalIncome = state.incomes.reduce((s,i)=>s+i.amount,0) - state.deductions.reduce((s,d)=>s+d.amount*0.20,0);
+            let taxable = Math.max(0, totalIncome - PA);
+            let tax = taxable <= BR-PA ? (taxable * BR_RATE) : 
+                      taxable <= HR-PA ? ((BR-PA)*BR_RATE + (taxable-(BR-PA))*HR_RATE) :
+                      ((BR-PA)*BR_RATE + (HR-BR)*HR_RATE + (taxable-(HR-PA))*AR_RATE);
+            let effective = totalIncome > 0 ? (tax/totalIncome)*100 : 0;
+            return { gross:totalIncome, tax, net:totalIncome-tax, effective };
+        }
+        
+        function renderAll() {
+            const r = calculateTax();
+            document.getElementById('gross-income').textContent = `£${Math.round(r.gross).toLocaleString()}`;
+            document.getElementById('total-tax').textContent = `£${Math.round(r.tax).toLocaleString()}`;
+            document.getElementById('net-income').textContent = `£${Math.round(r.net).toLocaleString()}`;
+            document.getElementById('effective-rate').textContent = `${r.effective.toFixed(1)}%`;
+            
+            const list = document.getElementById('income-list');
+            list.innerHTML = state.incomes.length ? state.incomes.map((i,idx)=>
+                `<div class="income-item animate-in"><div class="income-icon ${i.type}">${iconMap[i.type]}</div><div class="income-info"><div class="income-type">${typeLabels[state.lang][i.type]}</div>${i.desc?`<div class="income-desc">${i.desc}</div>`:''}</div><div class="income-amount">+£${Math.round(i.amount).toLocaleString()}</div><button class="delete-btn" onclick="deleteIncome(${idx})">×</button></div>`).join('') : `<div class="empty"><p data-i18n="no_income">${translations[state.lang].no_income}</p></div>`;
+            
+            const dlist = document.getElementById('deduction-list');
+            dlist.innerHTML = state.deductions.length ? state.deductions.map((d,idx)=>
+                `<div class="income-item animate-in" style="background:#FEF3C7"><div class="income-icon" style="background:#FDE68A">➖</div><div class="income-info"><div class="income-type">${d.type==='pension'?'Pension':d.type==='gift'?'Gift Aid':'Mortgage'}</div></div><div class="income-amount" style="color:var(--danger)">-£${Math.round(d.amount).toLocaleString()}</div><button class="delete-btn" onclick="deleteDeduction(${idx})">×</button></div>`).join('') : `<div class="empty"><p data-i18n="no_deductions">${translations[state.lang].no_deductions}</p></div>`;
+            
+            renderSuggestions();
+        }
+        
+        function renderSuggestions() {
+            const s = document.getElementById('suggestions-list');
+            if(state.incomes.length === 0) {
+                s.innerHTML = `<div class="empty"><p data-i18n="add_income_tips">${translations[state.lang].add_income_tips}</p></div>`;
+                return;
+            }
+            const total = state.incomes.reduce((s,i)=>s+i.amount,0);
+            let tips = [];
+            if(total > 12570) tips.push({title:state.lang==='en'?'Maximize ISA':'最大化ISA',desc:state.lang==='en'?'£20,000 tax-free allowance available':'每年£20,000免税额度',savings:Math.min(20000,total*0.20),prio:'high'});
+            tips.push({title:state.lang==='en'?'Pension Contributions':'养老金供款',desc:state.lang==='en'?'Reduce taxable income now':'立即减少应税收入',savings:1000*0.20,prio:'medium'});
+            if(state.incomes.some(i=>i.type==='dividend')) tips.push({title:state.lang==='en'?'Dividend Allowance':'股息免税额',desc:state.lang==='en'?'£500 dividend allowance available':'£500股息免税额度',savings:500*0.0875,prio:'medium'});
+            s.innerHTML = tips.map(t=>`<div class="suggestion-item animate-in"><div class="suggestion-header"><span class="suggestion-title">${t.title}</span><span class="suggestion-badge ${t.prio}">${t.prio==='high'?'High':'Medium'}</span></div><div class="suggestion-desc">${t.desc}</div><div class="suggestion-savings">£${Math.round(t.savings).toLocaleString()} ${state.lang==='en'?'potential savings':'潜在节省'}</div></div>`).join('');
+        }
+        
+        function openModal(type) { document.getElementById(`modal-${type}`).classList.add('active'); }
+        function closeModal(type) { document.getElementById(`modal-${type}`).classList.remove('active'); }
+        
+        function saveIncome() {
+            const type = document.getElementById('income-type').value;
+            const amount = parseFloat(document.getElementById('income-amount').value);
+            const desc = document.getElementById('income-desc').value;
+            if(!amount) return;
+            state.incomes.push({type,amount,desc});
+            closeModal('income');
+            document.getElementById('income-amount').value = '';
+            document.getElementById('income-desc').value = '';
+            renderAll();
+            saveData();
+        }
+        
+        function saveDeduction() {
+            const type = document.getElementById('deduction-type').value;
+            const amount = parseFloat(document.getElementById('deduction-amount').value);
+            if(!amount) return;
+            state.deductions.push({type,amount});
+            closeModal('deduction');
+            document.getElementById('deduction-amount').value = '';
+            renderAll();
+            saveData();
+        }
+        
+        function deleteIncome(idx) { state.incomes.splice(idx,1); renderAll(); saveData(); }
+        function deleteDeduction(idx) { state.deductions.splice(idx,1); renderAll(); saveData(); }
+        
+        function updateTaxYear() { state.taxYear = document.getElementById('tax-year-select').value; renderAll(); saveData(); }
+        function toggleScottish() { state.isScottish = !state.isScottish; document.getElementById('scottish-toggle').classList.toggle('active',state.isScottish); saveData(); }
+        function clearAllData() { if(confirm(state.lang==='zh'?'确定清除所有数据?':'Clear all data?')) { state.incomes=[]; state.deductions=[]; renderAll(); saveData(); } }
+        
+        function saveData() { localStorage.setItem('ukTaxData', JSON.stringify(state)); }
+        function loadData() { const d = localStorage.getItem('ukTaxData'); if(d) { state = JSON.parse(d); document.getElementById('tax-year-select').value = state.taxYear; document.getElementById('scottish-toggle').classList.toggle('active',state.isScottish); renderAll(); } }
+        
+        loadData();
+    </script>
+</body>
+</html>
