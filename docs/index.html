@@ -2,374 +2,355 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UK Tax Optimizer</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>UK Tax Optimizer v2</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@v4.4.1/dist/chart.umd.min.js"></script>
     <style>
-        :root { --primary: #0066CC; --success: #10B981; --warning: #F59E0B; --danger: #EF4444; --background: #F9FAFB; --card: #FFFFFF; --text: #1F2937; --border: #E5E7EB; --radius: 16px; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, sans-serif; background: var(--background); color: var(--text); min-height: 100vh; }
-        @media(min-width: 768px) { body { max-width: 800px; margin: 0 auto; } }
-        .header { background: var(--card); padding: 16px 20px; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .header h1 { font-size: 20px; font-weight: 600; }
-        .tabs { display: flex; background: var(--card); border-bottom: 1px solid var(--border); overflow-x: auto; }
-        .tab { flex: 0 0 auto; padding: 12px 20px; text-align: center; font-size: 13px; color: #666; cursor: pointer; border-bottom: 2px solid transparent; }
-        .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
-        .content { display: none; padding: 16px; }
-        .content.active { display: block; }
-        .card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; border: 1px solid var(--border); }
-        .card-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .summary-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
-        @media(min-width: 768px) { .summary-grid { grid-template-columns: repeat(4, 1fr); } }
-        .summary-item { text-align: center; padding: 12px; background: var(--background); border-radius: 10px; }
-        .summary-label { font-size: 11px; color: #666; display: block; }
-        .summary-value { font-size: 17px; font-weight: 600; }
-        .summary-value.blue { color: var(--primary); }
-        .summary-value.red { color: var(--danger); }
-        .summary-value.orange { color: var(--warning); }
-        .summary-value.green { color: var(--success); }
-        .list-row { display: flex; align-items: center; padding: 12px; background: var(--background); border-radius: 10px; margin-bottom: 8px; }
-        .list-row.deduction { background: #FEF3C7; }
-        .list-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 18px; }
-        .list-content { flex: 1; }
-        .list-title { font-size: 14px; font-weight: 500; }
-        .list-amount { font-size: 15px; font-weight: 600; margin-right: 10px; }
-        .list-amount.pos { color: var(--success); }
-        .list-amount.neg { color: var(--danger); }
-        .btn { padding: 10px 18px; border-radius: 10px; font-size: 14px; cursor: pointer; border: none; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-add { background: var(--primary); color: white; padding: 6px 12px; border-radius: 8px; font-size: 13px; }
-        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
-        .modal.active { display: flex; }
-        .modal-content { background: var(--card); border-radius: var(--radius); width: 100%; max-width: 380px; }
-        .modal-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .modal-title { font-size: 17px; font-weight: 600; }
-        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #666; }
-        .modal-body { padding: 16px; }
-        .modal-footer { padding: 16px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
-        .modal-footer .btn { flex: 1; }
-        .form-group { margin-bottom: 14px; }
-        .form-label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
-        .form-input, .form-select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 16px; }
-        .empty { text-align: center; padding: 30px; color: #999; }
-        .progress-bar { height: 6px; background: var(--border); border-radius: 3px; margin: 10px 0; }
-        .progress-fill { height: 100%; border-radius: 3px; }
-        .chart-box { height: 180px; margin: 10px 0; }
+        :root { --p:#0066CC; --s:#10B981; --w:#F59E0B; --e:#EF4444; --bg:#F9FAFB; --c:#FFF; --t:#1F2937; --b:#E5E7EB; --r:16px; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:var(--t); min-height:100vh; }
+        @media(min-width:768px){body{max-width:800px;margin:0 auto}}
+        .h{background:var(--c);padding:16px 20px;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--b);display:flex;justify-content:space-between;align-items:center}
+        .h h1{font-size:20px;font-weight:600}
+        .nav{background:var(--c);display:flex;border-bottom:1px solid var(--b);overflow-x:auto}
+        .nav div{padding:12px 20px;font-size:13px;color:#666;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+        .nav div.a{color:var(--p);border-bottom-color:var(--p)}
+        .p{display:none;padding:16px}
+        .p.a{display:block}
+        .c{background:var(--c);border-radius:var(--r);padding:16px;margin-bottom:16px;border:1px solid var(--b)}
+        .c h3{font-size:16px;margin-bottom:12px;display:flex;justify-content:space-between}
+        .g{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+        @media(min-width:768px){.g{grid-template-columns:repeat(4,1fr)}}
+        .s{text-align:center;padding:12px;background:var(--bg);border-radius:10px}
+        .s span{display:block;font-size:11px;color:#666}
+        .s strong{font-size:17px}
+        .s.blue{color:var(--p)}
+        .s.red{color:var(--e)}
+        .s.orange{color:var(--w)}
+        .s.green{color:var(--s)}
+        .l{display:flex;align-items:center;padding:12px;background:var(--bg);border-radius:10px;margin-bottom:8px}
+        .l.d{background:#FEF3C7}
+        .l i{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-right:12px;font-size:18px}
+        .l b{flex:1;font-size:14px}
+        .l .am{font-size:15px;font-weight:600;margin-right:10px}
+        .l .am.p{color:var(--s)}
+        .l .am.n{color:var(--e)}
+        .b{padding:10px 18px;border-radius:10px;font-size:14px;cursor:pointer;border:none}
+        .b.p{background:var(--p);color:#fff}
+        .b.w{background:var(--bg);border:1px solid var(--b)}
+        .b.sm{padding:6px 12px;border-radius:8px;font-size:13px;background:var(--p);color:#fff}
+        .m{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;padding:20px}
+        .m.a{display:flex}
+        .mc{background:var(--c);border-radius:var(--r);width:100%;max-width:380px}
+        .mh{padding:16px;border-bottom:1px solid var(--b);display:flex;justify-content:space-between}
+        .mb{padding:16px;border-top:1px solid var(--b);display:flex;gap:10px}
+        .mb .b{flex:1}
+        .mi{padding:16px}
+        .f{margin-bottom:14px}
+        .f label{display:block;font-size:13px;margin-bottom:6px}
+        .f input,.f select{width:100%;padding:12px;border:1px solid var(--b);border-radius:10px;font-size:16px}
+        .e{text-align:center;padding:30px;color:#999}
+        .pr{height:6px;background:var(--b);border-radius:3px;margin:10px 0}
+        .pr div{height:100%;border-radius:3px}
+        .ch{height:180px;margin:10px 0}
     </style>
 </head>
 <body>
-    <header class="header">
+    <header class="h">
         <h1>🇬🇧 UK Tax Optimizer</h1>
-        <div><button class="btn btn-primary" onclick="clearAllData()">Reset</button></div>
+        <button class="b w" onclick="clearAll()">Reset</button>
     </header>
 
-    <nav class="tabs">
-        <div class="tab active" id="tab-dashboard" onclick="switchTab('dashboard')">Dashboard</div>
-        <div class="tab" id="tab-income" onclick="switchTab('income')">Income</div>
-        <div class="tab" id="tab-assets" onclick="switchTab('assets')">Assets</div>
-        <div class="tab" id="tab-guide" onclick="switchTab('guide')">Guide</div>
+    <nav class="nav">
+        <div class="a" id="t-dash" onclick="tab('dash')">Dashboard</div>
+        <div id="t-income" onclick="tab('income')">Income</div>
+        <div id="t-assets" onclick="tab('assets')">Assets</div>
+        <div id="t-guide" onclick="tab('guide')">Guide</div>
     </nav>
 
     <!-- DASHBOARD -->
-    <div id="content-dashboard" class="content active">
-        <div class="card">
-            <div class="card-title">Tax Summary</div>
-            <div class="summary-grid">
-                <div class="summary-item"><span class="summary-label">Gross</span><span class="summary-value blue" id="val-gross">£0</span></div>
-                <div class="summary-item"><span class="summary-label">Tax</span><span class="summary-value red" id="val-tax">£0</span></div>
-                <div class="summary-item"><span class="summary-label">NI</span><span class="summary-value orange" id="val-ni">£0</span></div>
-                <div class="summary-item"><span class="summary-label">Net</span><span class="summary-value green" id="val-net">£0</span></div>
+    <div class="p a" id="p-dash">
+        <div class="c">
+            <h3>Tax Summary</h3>
+            <div class="g">
+                <div class="s"><span>Gross</span><strong class="s blue" id="g-gross">£0>
+                <div class="s"></strong></div<span>Tax</span><strong class="s red" id="g-tax">£0</strong></div>
+                <div class="s"><span>NI</span><strong class="s orange" id="g-ni">£0</strong></div>
+                <div class="s"><span>Net</span><strong class="s green" id="g-net">£0</strong></div>
             </div>
-            <div class="progress-bar"><div class="progress-fill" id="progress-tax" style="width:0%;background:var(--danger)"></div></div>
-            <div style="text-align:center;font-size:12px;color:#666">Effective Rate: <strong id="val-rate">0%</strong></div>
+            <div class="pr"><div id="p-rate" style="width:0%;background:var(--e)"></div></div>
+            <div style="text-align:center;font-size:12px;color:#666">Effective Rate: <strong id="v-rate">0%</strong></div>
         </div>
-        <div class="card">
-            <div class="card-title">Income Breakdown</div>
-            <div class="chart-box"><canvas id="chart-income"></canvas></div>
+        <div class="c">
+            <h3>Income Breakdown</h3>
+            <div class="ch"><canvas id="c-income"></canvas></div>
         </div>
-        <div class="card">
-            <div class="card-title">Tax vs NI</div>
-            <div class="chart-box"><canvas id="chart-tax"></canvas></div>
+        <div class="c">
+            <h3>Tax vs NI</h3>
+            <div class="ch"><canvas id="c-tax"></canvas></div>
         </div>
-        <div class="card">
-            <div class="card-title">Asset Allocation</div>
-            <div class="chart-box"><canvas id="chart-assets"></canvas></div>
+        <div class="c">
+            <h3>Assets</h3>
+            <div class="ch"><canvas id="c-assets"></canvas></div>
         </div>
     </div>
 
     <!-- INCOME -->
-    <div id="content-income" class="content">
-        <div class="card">
-            <div class="card-title">Income Sources<button class="btn btn-add" onclick="openModal('income')">+ Add</button></div>
-            <div id="list-income"></div>
+    <div class="p" id="p-income">
+        <div class="c">
+            <h3>Income<button class="b sm" onclick="open('income')">+ Add</button></h3>
+            <div id="l-income"></div>
         </div>
-        <div class="card">
-            <div class="card-title">Deductions<button class="btn btn-add" onclick="openModal('deduction')">+ Add</button></div>
-            <div id="list-deduction"></div>
+        <div class="c">
+            <h3>Deductions<button class="b sm" onclick="open('deduction')">+ Add</button></h3>
+            <div id="l-deduction"></div>
         </div>
     </div>
 
     <!-- ASSETS -->
-    <div id="content-assets" class="content">
-        <div class="card">
-            <div class="card-title">Savings & Assets<button class="btn btn-add" onclick="openModal('asset')">+ Add</button></div>
-            <div class="summary-grid" style="margin-bottom:16px;">
-                <div class="summary-item"><span class="summary-label">Total</span><span class="summary-value blue" id="val-assets">£0</span></div>
-                <div class="summary-item"><span class="summary-label">Tax-Free</span><span class="summary-value green" id="val-taxfree">£0</span></div>
+    <div class="p" id="p-assets">
+        <div class="c">
+            <h3>Assets<button class="b sm" onclick="open('asset')">+ Add</button></h3>
+            <div class="g" style="margin-bottom:16px">
+                <div class="s"><span>Total</span><strong class="s blue" id="g-assets">£0</strong></div>
+                <div class="s"><span>Tax-Free</span><strong class="s green" id="g-taxfree">£0</strong></div>
             </div>
-            <div id="list-asset"></div>
+            <div id="l-asset"></div>
         </div>
-        <div class="card">
-            <div class="card-title">Allowances</div>
-            <div class="progress-bar"><div class="progress-fill" id="progress-isa" style="width:0%;background:var(--success)"></div></div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:12px"><span>ISA</span><span id="val-isa">£0 / £20,000</span></div>
-            <div class="progress-bar"><div class="progress-fill" id="progress-pension" style="width:0%;background:var(--primary)"></div></div>
-            <div style="display:flex;justify-content:space-between;font-size:12px"><span>Pension</span><span id="val-pension">£0 / £60,000</span></div>
+        <div class="c">
+            <h3>Allowances</h3>
+            <div class="pr"><div id="p-isa" style="width:0%;background:var(--s)"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:12px"><span>ISA</span><span id="v-isa">£0 / £20,000</span></div>
+            <div class="pr"><div id="p-pension" style="width:0%;background:var(--p)"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span>Pension</span><span id="v-pension">£0 / £60,000</span></div>
         </div>
     </div>
 
     <!-- GUIDE -->
-    <div id="content-guide" class="content">
-        <div class="card">
-            <div class="card-title">Income Tax Rates (2024/25)</div>
-            <div class="list-row"><div class="list-content"><div class="list-title">Personal Allowance</div></div><span>£12,570 @ 0%</span></div>
-            <div class="list-row"><div class="list-content"><div class="list-title">Basic Rate</div></div><span>£12,571-50,270 @ 20%</span></div>
-            <div class="list-row"><div class="list-content"><div class="list-title">Higher Rate</div></div><span>£50,271-125,140 @ 40%</span></div>
-            <div class="list-row"><div class="list-content"><div class="list-title">Additional Rate</div></div><span>Over £125,140 @ 45%</span></div>
+    <div class="p" id="p-guide">
+        <div class="c">
+            <h3>Income Tax (2024/25)</h3>
+            <div class="l"><div style="flex:1"><b>Personal Allowance</b></div><span>£12,570 @ 0%</span></div>
+            <div class="l"><div style="flex:1"><b>Basic Rate</b></div><span>£12,571-50,270 @ 20%</span></div>
+            <div class="l"><div style="flex:1"><b>Higher Rate</b></div><span>£50,271-125,140 @ 40%</span></div>
+            <div class="l"><div style="flex:1"><b>Additional Rate</b></div><span>Over £125,140 @ 45%</span></div>
         </div>
-        <div class="card">
-            <div class="card-title">National Insurance</div>
-            <div class="list-row"><div class="list-content"><div class="list-title">Class 1 Employee</div></div><span>£12,570+ (8%/2%)</span></div>
-            <div class="list-row"><div class="list-content"><div class="list-title">Class 4 Self-Employed</div></div><span>£12,570+ (9%/2%)</span></div>
+        <div class="c">
+            <h3>National Insurance</h3>
+            <div class="l"><div style="flex:1"><b>Class 1 Employee</b></div><span>£12,570+ (8%/2%)</span></div>
+            <div class="l"><div style="flex:1"><b>Class 4 Self-Employed</b></div><span>£12,570+ (9%/2%)</span></div>
         </div>
     </div>
 
     <!-- MODALS -->
-    <div id="modal-income" class="modal">
-        <div class="modal-content">
-            <div class="modal-header"><span class="modal-title">Add Income</span><button class="modal-close" onclick="closeModal('income')">&times;</button></div>
-            <div class="modal-body">
-                <div class="form-group"><label class="form-label">Type</label>
-                    <select class="form-select" id="input-type">
-                        <option value="salary">Salary</option>
-                        <option value="self">Self-Employment</option>
-                        <option value="interest">Interest</option>
-                        <option value="dividend">Dividend</option>
-                        <option value="capital">Capital Gains</option>
-                        <option value="rental">Rental</option>
-                    </select>
-                </div>
-                <div class="form-group"><label class="form-label">Amount (£)</label><input type="number" class="form-input" id="input-amount"></div>
+    <div class="m" id="m-income">
+        <div class="mc">
+            <div class="mh"><strong>Add Income</strong><button class="b w" onclick="close('income')">&times;</button></div>
+            <div class="mi">
+                <div class="f"><label>Type</label><select id="i-type"><option value="salary">Salary</option><option value="self">Self-Employment</option><option value="interest">Interest</option><option value="dividend">Dividend</option><option value="capital">Capital Gains</option><option value="rental">Rental</option></select></div>
+                <div class="f"><label>Amount (£)</label><input type="number" id="i-amount" placeholder="0"></div>
             </div>
-            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('income')">Cancel</button><button class="btn btn-primary" onclick="saveIncome()">Save</button></div>
+            <div class="mb"><button class="b w" onclick="close('income')">Cancel</button><button class="b p" onclick="saveIncome()">Save</button></div>
         </div>
     </div>
 
-    <div id="modal-deduction" class="modal">
-        <div class="modal-content">
-            <div class="modal-header"><span class="modal-title">Add Deduction</span><button class="modal-close" onclick="closeModal('deduction')">&times;</button></div>
-            <div class="modal-body">
-                <div class="form-group"><label class="form-label">Type</label>
-                    <select class="form-select" id="deduct-type">
-                        <option value="pension">Pension</option>
-                        <option value="gift">Gift Aid</option>
-                        <option value="trading">Trading</option>
-                    </select>
-                </div>
-                <div class="form-group"><label class="form-label">Amount (£)</label><input type="number" class="form-input" id="deduct-amount"></div>
+    <div class="m" id="m-deduction">
+        <div class="mc">
+            <div class="mh"><strong>Add Deduction</strong><button class="b w" onclick="close('deduction')">&times;</button></div>
+            <div class="mi">
+                <div class="f"><label>Type</label><select id="d-type"><option value="pension">Pension</option><option value="gift">Gift Aid</option><option value="trading">Trading</option></select></div>
+                <div class="f"><label>Amount (£)</label><input type="number" id="d-amount" placeholder="0"></div>
             </div>
-            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('deduction')">Cancel</button><button class="btn btn-primary" onclick="saveDeduction()">Save</button></div>
+            <div class="mb"><button class="b w" onclick="close('deduction')">Cancel</button><button class="b p" onclick="saveDeduction()">Save</button></div>
         </div>
     </div>
 
-    <div id="modal-asset" class="modal">
-        <div class="modal-content">
-            <div class="modal-header"><span class="modal-title">Add Asset</span><button class="modal-close" onclick="closeModal('asset')">&times;</button></div>
-            <div class="modal-body">
-                <div class="form-group"><label class="form-label">Type</label>
-                    <select class="form-select" id="asset-type">
-                        <option value="isa">ISA (Tax-Free)</option>
-                        <option value="ns">National Savings</option>
-                        <option value="savings">Bank Savings</option>
-                        <option value="investment">Investment</option>
-                        <option value="pension">Pension</option>
-                        <option value="property">Property</option>
-                    </select>
-                </div>
-                <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="asset-name"></div>
-                <div class="form-group"><label class="form-label">Amount (£)</label><input type="number" class="form-input" id="asset-amount"></div>
+    <div class="m" id="m-asset">
+        <div class="mc">
+            <div class="mh"><strong>Add Asset</strong><button class="b w" onclick="close('asset')">&times;</button></div>
+            <div class="mi">
+                <div class="f"><label>Type</label><select id="a-type"><option value="isa">ISA (Tax-Free)</option><option value="ns">National Savings</option><option value="savings">Bank Savings</option><option value="investment">Investment</option><option value="pension">Pension</option><option value="property">Property</option></select></div>
+                <div class="f"><label>Name (optional)</label><input type="text" id="a-name" placeholder="e.g., Santander ISA"></div>
+                <div class="f"><label>Amount (£)</label><input type="number" id="a-amount" placeholder="0"></div>
             </div>
-            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('asset')">Cancel</button><button class="btn btn-primary" onclick="saveAsset()">Save</button></div>
+            <div class="mb"><button class="b w" onclick="close('asset')">Cancel</button><button class="b p" onclick="saveAsset()">Save</button></div>
         </div>
     </div>
 
     <script>
-        // State
+        // Debug logging
+        console.log('UK Tax Optimizer loading...');
+        
         let state = { incomes: [], deductions: [], assets: [] };
         let charts = {};
+        
+        const icon = { salary:'💰',self:'💼',interest:'💵',dividend:'📊',capital:'📈',rental:'🏠',pension:'💼',gift:'🎁',trading:'🛒',isa:'🏦',ns:'🇬🇧',savings:'💰',investment:'📈',property:'🏠' };
+        const color = { salary:'#3B82F6',self:'#8B5CF6',interest:'#F59E0B',dividend:'#10B981',capital:'#EC4899',rental:'#6366F1',pension:'#8B5CF6',gift:'#F59E0B',trading:'#F59E0B',isa:'#10B981',ns:'#3B82F6',savings:'#F59E0B',investment:'#EC4899',property:'#EF4444' };
+        const name = { salary:'Salary',self:'Self-Employment',interest:'Interest',dividend:'Dividend',capital:'Capital Gains',rental:'Rental',pension:'Pension',gift:'Gift Aid',trading:'Trading',isa:'ISA',ns:'National Savings',savings:'Bank Savings',investment:'Investment',property:'Property' };
 
-        const icons = { salary: '💰', self: '💼', interest: '💵', dividend: '📊', capital: '📈', rental: '🏠', pension: '💼', gift: '🎁', trading: '🛒', isa: '🏦', ns: '🇬🇧', savings: '💰', investment: '📈', property: '🏠' };
-        const colors = { salary: '#3B82F6', self: '#8B5CF6', interest: '#F59E0B', dividend: '#10B981', capital: '#EC4899', rental: '#6366F1', pension: '#8B5CF6', gift: '#F59E0B', trading: '#F59E0B', isa: '#10B981', ns: '#3B82F6', savings: '#F59E0B', investment: '#EC4899', property: '#EF4444' };
-        const labels = { salary: 'Salary', self: 'Self-Employment', interest: 'Interest', dividend: 'Dividend', capital: 'Capital Gains', rental: 'Rental', pension: 'Pension', gift: 'Gift Aid', trading: 'Trading', isa: 'ISA', ns: 'National Savings', savings: 'Bank Savings', investment: 'Investment', property: 'Property' };
-
-        // Tab switching
-        function switchTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
-            document.getElementById('tab-' + tab).classList.add('active');
-            document.getElementById('content-' + tab).classList.add('active');
-            if (tab === 'dashboard') updateCharts();
+        function tab(t) {
+            console.log('Switching to tab:', t);
+            document.querySelectorAll('.nav div').forEach(d => d.classList.remove('a'));
+            document.querySelectorAll('.p').forEach(p => p.classList.remove('a'));
+            document.getElementById('t-' + t).classList.add('a');
+            document.getElementById('p-' + t).classList.add('a');
+            if (t === 'dash') updateCharts();
         }
 
-        // Calculate tax
-        function calculateTax() {
+        function open(t) { document.getElementById('m-' + t).classList.add('a'); }
+        function close(t) { document.getElementById('m-' + t).classList.remove('a'); }
+
+        function calc() {
             const PA = 12570, BR = 50270, HR = 125140;
             let total = state.incomes.reduce((s,i) => s + i.amount, 0) - state.deductions.reduce((s,d) => s + d.amount, 0);
             let taxable = Math.max(0, total - PA);
             let tax = taxable <= BR-PA ? taxable*0.20 : taxable <= HR-PA ? (BR-PA)*0.20 + (taxable-(BR-PA))*0.40 : (BR-PA)*0.20 + (HR-BR)*0.40 + (taxable-(HR-PA))*0.45;
-            let ni = 0, sal = state.incomes.filter(i => i.type === 'salary').reduce((s,i) => s + i.amount, 0), self = state.incomes.filter(i => i.type === 'self').reduce((s,i) => s + i.amount, 0);
+            let ni = 0, sal = state.incomes.filter(i => i.type === 'salary').reduce((s,i) => s + i.amount, 0), sel = state.incomes.filter(i => i.type === 'self').reduce((s,i) => s + i.amount, 0);
             if (sal > 0) { let n = Math.max(0, sal - PA); ni += n <= BR-PA ? n*0.08 : (BR-PA)*0.08 + (n-(BR-PA))*0.02; }
-            if (self > 0) { let n = Math.max(0, self - PA); ni += n <= BR-PA ? n*0.09 : (BR-PA)*0.09 + (n-(BR-PA))*0.02; }
-            return { gross: total, tax, ni, totalTax: tax + ni, net: total - tax - ni, rate: total > 0 ? (tax + ni) / total * 100 : 0 };
+            if (sel > 0) { let n = Math.max(0, sel - PA); ni += n <= BR-PA ? n*0.09 : (BR-PA)*0.09 + (n-(BR-PA))*0.02; }
+            return { gross: total, tax, ni, totalTax: tax+ni, net: total-tax-ni, rate: total > 0 ? (tax+ni)/total*100 : 0 };
         }
 
-        // Render all
         function render() {
-            const r = calculateTax();
+            console.log('Rendering, state:', JSON.stringify(state));
+            const r = calc();
             
-            // Dashboard
-            document.getElementById('val-gross').textContent = '£' + Math.round(r.gross).toLocaleString();
-            document.getElementById('val-tax').textContent = '£' + Math.round(r.tax).toLocaleString();
-            document.getElementById('val-ni').textContent = '£' + Math.round(r.ni).toLocaleString();
-            document.getElementById('val-net').textContent = '£' + Math.round(r.net).toLocaleString();
-            document.getElementById('val-rate').textContent = r.rate.toFixed(1) + '%';
-            document.getElementById('progress-tax').style.width = Math.min(100, r.rate) + '%';
+            document.getElementById('g-gross').textContent = '£' + Math.round(r.gross).toLocaleString();
+            document.getElementById('g-tax').textContent = '£' + Math.round(r.tax).toLocaleString();
+            document.getElementById('g-ni').textContent = '£' + Math.round(r.ni).toLocaleString();
+            document.getElementById('g-net').textContent = '£' + Math.round(r.net).toLocaleString();
+            document.getElementById('v-rate').textContent = r.rate.toFixed(1) + '%';
+            document.getElementById('p-rate').style.width = Math.min(100, r.rate) + '%';
             
-            // Assets
-            let totalAssets = state.assets.reduce((s,a) => s + a.amount, 0);
-            let taxFreeAssets = state.assets.filter(a => ['isa','ns','pension'].includes(a.type)).reduce((s,a) => s + a.amount, 0);
-            document.getElementById('val-assets').textContent = '£' + Math.round(totalAssets).toLocaleString();
-            document.getElementById('val-taxfree').textContent = '£' + Math.round(taxFreeAssets).toLocaleString();
+            let totalA = state.assets.reduce((s,a) => s + a.amount, 0);
+            let taxFreeA = state.assets.filter(a => ['isa','ns','pension'].includes(a.type)).reduce((s,a) => s + a.amount, 0);
+            document.getElementById('g-assets').textContent = '£' + Math.round(totalA).toLocaleString();
+            document.getElementById('g-taxfree').textContent = '£' + Math.round(taxFreeA).toLocaleString();
             
             let isa = state.assets.filter(a => a.type === 'isa').reduce((s,a) => s + a.amount, 0);
             let pension = state.assets.filter(a => a.type === 'pension').reduce((s,a) => s + a.amount, 0);
-            document.getElementById('val-isa').textContent = '£' + Math.round(isa).toLocaleString() + ' / £20,000';
-            document.getElementById('val-pension').textContent = '£' + Math.round(pension).toLocaleString() + ' / £60,000';
-            document.getElementById('progress-isa').style.width = Math.min(100, isa/20000*100) + '%';
-            document.getElementById('progress-pension').style.width = Math.min(100, pension/60000*100) + '%';
+            document.getElementById('v-isa').textContent = '£' + Math.round(isa).toLocaleString() + ' / £20,000';
+            document.getElementById('v-pension').textContent = '£' + Math.round(pension).toLocaleString() + ' / £60,000';
+            document.getElementById('p-isa').style.width = Math.min(100, isa/20000*100) + '%';
+            document.getElementById('p-pension').style.width = Math.min(100, pension/60000*100) + '%';
             
-            // Income list
-            const incomeList = document.getElementById('list-income');
+            // Render income list
+            const incList = document.getElementById('l-income');
             if (state.incomes.length === 0) {
-                incomeList.innerHTML = '<div class="empty">No income added yet</div>';
+                incList.innerHTML = '<div class="e">No income added yet</div>';
             } else {
-                incomeList.innerHTML = state.incomes.map((item, idx) => 
-                    '<div class="list-row"><div class="list-icon" style="background:' + colors[item.type] + '20">' + icons[item.type] + '</div><div class="list-content"><div class="list-title">' + labels[item.type] + '</div></div><div class="list-amount pos">+£' + Math.round(item.amount).toLocaleString() + '</div><button class="btn" style="color:var(--danger);padding:4px 8px" onclick="deleteIncome(' + idx + ')">×</button></div>'
+                incList.innerHTML = state.incomes.map((item, idx) => 
+                    '<div class="l"><i style="background:' + color[item.type] + '20">' + icon[item.type] + '</i><b>' + name[item.type] + '</b><span class="am p">+£' + Math.round(item.amount).toLocaleString() + '</span><button class="b w" style="color:var(--e);padding:4px 8px" onclick="delI(' + idx + ')">×</button></div>'
                 ).join('');
             }
             
-            // Deduction list
-            const deductList = document.getElementById('list-deduction');
+            // Render deduction list
+            const dedList = document.getElementById('l-deduction');
             if (state.deductions.length === 0) {
-                deductList.innerHTML = '<div class="empty">No deductions added yet</div>';
+                dedList.innerHTML = '<div class="e">No deductions added yet</div>';
             } else {
-                deductList.innerHTML = state.deductions.map((item, idx) => 
-                    '<div class="list-row deduction"><div class="list-icon" style="background:' + colors[item.type] + '20">' + icons[item.type] + '</div><div class="list-content"><div class="list-title">' + labels[item.type] + '</div></div><div class="list-amount neg">-£' + Math.round(item.amount).toLocaleString() + '</div><button class="btn" style="color:var(--danger);padding:4px 8px" onclick="deleteDeduction(' + idx + ')">×</button></div>'
+                dedList.innerHTML = state.deductions.map((item, idx) => 
+                    '<div class="l d"><i style="background:' + color[item.type] + '20">' + icon[item.type] + '</i><b>' + name[item.type] + '</b><span class="am n">-£' + Math.round(item.amount).toLocaleString() + '</span><button class="b w" style="color:var(--e);padding:4px 8px" onclick="delD(' + idx + ')">×</button></div>'
                 ).join('');
             }
             
-            // Asset list
-            const assetList = document.getElementById('list-asset');
+            // Render asset list
+            const astList = document.getElementById('l-asset');
             if (state.assets.length === 0) {
-                assetList.innerHTML = '<div class="empty">No assets added yet</div>';
+                astList.innerHTML = '<div class="e">No assets added yet</div>';
             } else {
-                assetList.innerHTML = state.assets.map((item, idx) => 
-                    '<div class="list-row"><div class="list-icon" style="background:' + colors[item.type] + '20">' + icons[item.type] + '</div><div class="list-content"><div class="list-title">' + (item.name || labels[item.type]) + '</div></div><div class="list-amount pos">£' + Math.round(item.amount).toLocaleString() + '</div><button class="btn" style="color:var(--danger);padding:4px 8px" onclick="deleteAsset(' + idx + ')">×</button></div>'
+                astList.innerHTML = state.assets.map((item, idx) => 
+                    '<div class="l"><i style="background:' + color[item.type] + '20">' + icon[item.type] + '</i><b>' + (item.name || name[item.type]) + '</b><span class="am p">£' + Math.round(item.amount).toLocaleString() + '</span><button class="b w" style="color:var(--e);padding:4px 8px" onclick="delA(' + idx + ')">×</button></div>'
                 ).join('');
             }
             
             updateCharts();
         }
 
-        // Charts
         function updateCharts() {
-            if (!charts.income) {
-                charts.income = new Chart(document.getElementById('chart-income'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: Object.values(colors) }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '55%' } });
-                charts.tax = new Chart(document.getElementById('chart-tax'), { type: 'bar', data: { labels: ['Tax', 'NI'], datasets: [{ data: [0, 0], backgroundColor: ['#EF4444', '#F59E0B'] }] }, options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y' } });
-                charts.assets = new Chart(document.getElementById('chart-assets'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: Object.values(colors) }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '55%' } });
+            console.log('Updating charts...');
+            if (!charts.inc) {
+                try {
+                    charts.inc = new Chart(document.getElementById('c-income'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: Object.values(color) }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '55%' } });
+                    charts.tax = new Chart(document.getElementById('c-tax'), { type: 'bar', data: { labels: ['Tax', 'NI'], datasets: [{ data: [0, 0], backgroundColor: ['#EF4444', '#F59E0B'] }] }, options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y' } });
+                    charts.assets = new Chart(document.getElementById('c-assets'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: Object.values(color) }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '55%' } });
+                } catch(e) { console.error('Chart init error:', e); }
             }
             
-            let inc = {}; state.incomes.forEach(i => { inc[i.type] = (inc[i.type] || 0) + i.amount; });
-            charts.income.data.labels = Object.keys(inc).map(k => labels[k]);
-            charts.income.data.datasets[0].data = Object.values(inc);
-            charts.income.update();
+            let inc = {}; state.incomes.forEach(i => { inc[i.type] = (inc[i.type]||0) + i.amount; });
+            charts.inc.data.labels = Object.keys(inc).map(k => name[k]);
+            charts.inc.data.datasets[0].data = Object.values(inc);
+            charts.inc.update();
             
-            const r = calculateTax();
+            const r = calc();
             charts.tax.data.datasets[0].data = [r.tax, r.ni];
             charts.tax.update();
             
-            let ass = {}; state.assets.forEach(a => { ass[a.type] = (ass[a.type] || 0) + a.amount; });
-            charts.assets.data.labels = Object.keys(ass).map(k => labels[k]);
-            charts.assets.data.datasets[0].data = Object.values(ass);
+            let ast = {}; state.assets.forEach(a => { ast[a.type] = (ast[a.type]||0) + a.amount; });
+            charts.assets.data.labels = Object.keys(ast).map(k => name[k]);
+            charts.assets.data.datasets[0].data = Object.values(ast);
             charts.assets.update();
         }
 
-        // Modal functions
-        function openModal(type) { document.getElementById('modal-' + type).classList.add('active'); }
-        function closeModal(type) { document.getElementById('modal-' + type).classList.remove('active'); }
-
-        // Save functions
         function saveIncome() {
-            const type = document.getElementById('input-type').value;
-            const amount = parseFloat(document.getElementById('input-amount').value);
-            if (!amount || amount <= 0) return alert('Please enter a valid amount');
+            const type = document.getElementById('i-type').value;
+            const amount = parseFloat(document.getElementById('i-amount').value);
+            if (!amount || amount <= 0) { alert('Please enter a valid amount'); return; }
             state.incomes.push({ type, amount });
-            document.getElementById('input-amount').value = '';
-            closeModal('income');
+            document.getElementById('i-amount').value = '';
+            close('income');
+            save();
             render();
-            saveData();
         }
 
         function saveDeduction() {
-            const type = document.getElementById('deduct-type').value;
-            const amount = parseFloat(document.getElementById('deduct-amount').value);
-            if (!amount || amount <= 0) return alert('Please enter a valid amount');
+            const type = document.getElementById('d-type').value;
+            const amount = parseFloat(document.getElementById('d-amount').value);
+            if (!amount || amount <= 0) { alert('Please enter a valid amount'); return; }
             state.deductions.push({ type, amount });
-            document.getElementById('deduct-amount').value = '';
-            closeModal('deduction');
+            document.getElementById('d-amount').value = '';
+            close('deduction');
+            save();
             render();
-            saveData();
         }
 
         function saveAsset() {
-            const type = document.getElementById('asset-type').value;
-            const name = document.getElementById('asset-name').value;
-            const amount = parseFloat(document.getElementById('asset-amount').value);
-            if (!amount || amount <= 0) return alert('Please enter a valid amount');
+            const type = document.getElementById('a-type').value;
+            const name = document.getElementById('a-name').value;
+            const amount = parseFloat(document.getElementById('a-amount').value);
+            if (!amount || amount <= 0) { alert('Please enter a valid amount'); return; }
             state.assets.push({ type, name, amount });
-            document.getElementById('asset-amount').value = '';
-            document.getElementById('asset-name').value = '';
-            closeModal('asset');
-            render();
-            saveData();
-        }
-
-        // Delete functions
-        function deleteIncome(idx) { state.incomes.splice(idx, 1); render(); saveData(); }
-        function deleteDeduction(idx) { state.deductions.splice(idx, 1); render(); saveData(); }
-        function deleteAsset(idx) { state.assets.splice(idx, 1); render(); saveData(); }
-
-        // Data persistence
-        function saveData() { localStorage.setItem('ukTaxData', JSON.stringify(state)); }
-        function loadData() {
-            const d = localStorage.getItem('ukTaxData');
-            if (d) { state = JSON.parse(d); }
+            document.getElementById('a-amount').value = '';
+            document.getElementById('a-name').value = '';
+            close('asset');
+            save();
             render();
         }
-        function clearAllData() { if (confirm('Clear all data?')) { state = { incomes: [], deductions: [], assets: [] }; saveData(); render(); } }
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', loadData);
+        function delI(i) { state.incomes.splice(i, 1); save(); render(); }
+        function delD(i) { state.deductions.splice(i, 1); save(); render(); }
+        function delA(i) { state.assets.splice(i, 1); save(); render(); }
+
+        function save() { localStorage.setItem('ukTaxData', JSON.stringify(state)); }
+        function load() {
+            try {
+                const d = localStorage.getItem('ukTaxData');
+                if (d) { state = JSON.parse(d); }
+                console.log('Loaded state:', JSON.stringify(state));
+            } catch(e) { console.error('Load error:', e); }
+            render();
+        }
+        function clearAll() { if (confirm('Clear all data?')) { state = { incomes: [], deductions: [], assets: [] }; save(); render(); } }
+
+        // Load on page load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', load);
+        } else {
+            load();
+        }
     </script>
 </body>
 </html>
