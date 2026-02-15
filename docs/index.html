@@ -13,7 +13,7 @@
         .header { background: var(--card); padding: 16px 20px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center; }
         .header h1 { font-size: 20px; font-weight: 600; }
         .tabs { display: flex; background: var(--card); border-bottom: 1px solid var(--border); position: sticky; top: 60px; z-index: 99; overflow-x: auto; }
-        .tab { flex: 0 0 auto; padding: 12px 16px; text-align: center; font-size: 12px; color: var(--text-secondary); cursor: pointer; border-bottom: 2px solid transparent; }
+        .tab { flex: 0 0 auto; padding: 12px 16px; text-align: center; font-size: 12px; color: var(--text-secondary); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
         .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
         .tab svg { display: block; margin: 0 auto 4px; width: 24px; height: 24px; }
         .content { display: none; padding: 16px; }
@@ -29,23 +29,21 @@
         .summary-value.red { color: var(--danger); }
         .summary-value.blue { color: var(--primary); }
         .summary-value.orange { color: var(--warning); }
-        .chart-container { position: relative; height: 200px; margin: 16px 0; }
-        .asset-item { display: flex; align-items: center; padding: 12px; background: var(--background); border-radius: 12px; margin-bottom: 8px; }
-        .asset-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 20px; }
-        .asset-icon.isa { background: #DBEAFE; }
-        .asset-icon.ns { background: #D1FAE5; }
-        .asset-icon.savings { background: #FEF3C7; }
-        .asset-icon.investment { background: #FCE7F3; }
-        .asset-icon.pension { background: #E0E7FF; }
-        .asset-info { flex: 1; }
-        .asset-name { font-size: 14px; font-weight: 500; }
-        .asset-value { font-size: 18px; font-weight: 600; color: var(--success); }
-        .delete-btn { width: 36px; height: 36px; border: none; background: none; color: var(--danger); cursor: pointer; font-size: 20px; }
+        .list-item { display: flex; align-items: center; padding: 12px; background: var(--background); border-radius: 12px; margin-bottom: 8px; }
+        .list-item.deduction { background: #FEF3C7; }
+        .list-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 20px; }
+        .list-info { flex: 1; }
+        .list-name { font-size: 14px; font-weight: 500; }
+        .list-desc { font-size: 12px; color: var(--text-secondary); }
+        .list-amount { font-size: 16px; font-weight: 600; margin-right: 12px; }
+        .list-amount.positive { color: var(--success); }
+        .list-amount.negative { color: var(--danger); }
+        .delete-btn { width: 36px; height: 36px; border: none; background: none; color: var(--danger); cursor: pointer; font-size: 20px; border-radius: 50%; }
+        .delete-btn:hover { background: rgba(239,68,68,0.1); }
         .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-secondary { background: var(--background); color: var(--text); border: 1px solid var(--border); }
         .btn-add { background: var(--primary); color: white; padding: 8px 16px; border-radius: 8px; font-size: 13px; }
-        .btn-block { width: 100%; }
         .form-group { margin-bottom: 16px; }
         .form-label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; }
         .form-input { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 12px; font-size: 16px; background: var(--card); }
@@ -68,9 +66,7 @@
         .toggle.active::after { transform: translateX(20px); }
         .progress-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin: 8px 0; }
         .progress-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
-        .allocation-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 12px; }
-        .allocation-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
-        .allocation-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .chart-container { position: relative; height: 200px; margin: 16px 0; }
     </style>
 </head>
 <body>
@@ -80,89 +76,81 @@
     </div>
 
     <header class="header">
-        <h1>🇬🇧 UK Tax Optimizer</h1>
+        <h1>UK Tax Optimizer</h1>
     </header>
 
     <nav class="tabs">
         <div class="tab active" onclick="switchTab('dashboard')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/></svg>
-            <span data-i18n="tab_dashboard">Dashboard</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/></svg>
+            <span>Dashboard</span>
         </div>
         <div class="tab" onclick="switchTab('income')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-            <span data-i18n="tab_income">Income</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/></svg>
+            <span>Income</span>
         </div>
         <div class="tab" onclick="switchTab('assets')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
-            <span data-i18n="tab_assets">Assets</span>
-        </div>
-        <div class="tab" onclick="switchTab('optimize')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3"/></svg>
-            <span data-i18n="tab_optimize">Optimize</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8"/></svg>
+            <span>Assets</span>
         </div>
         <div class="tab" onclick="switchTab('guide')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6.042A8.967 8.967 0 006 6a8.967 8.967 0 00-6 6.042"/></svg>
-            <span data-i18n="tab_guide">Guide</span>
+            <span>Guide</span>
         </div>
     </nav>
 
-    <!-- Dashboard Tab -->
     <div id="tab-dashboard" class="content active">
         <div class="card">
-            <div class="card-title"><span data-i18n="summary_title">Tax Summary</span></div>
+            <div class="card-title">Tax Summary</div>
             <div class="summary-grid">
-                <div class="summary-item"><span class="summary-label" data-i18n="gross_income">Gross</span><span class="summary-value blue" id="gross-income">£0</span></div>
-                <div class="summary-item"><span class="summary-label" data-i18n="income_tax">Tax</span><span class="summary-value red" id="income-tax">£0</span></div>
+                <div class="summary-item"><span class="summary-label">Gross</span><span class="summary-value blue" id="gross-income">£0</span></div>
+                <div class="summary-item"><span class="summary-label">Tax</span><span class="summary-value red" id="income-tax">£0</span></div>
                 <div class="summary-item"><span class="summary-label">NI</span><span class="summary-value orange" id="national-insurance">£0</span></div>
-                <div class="summary-item"><span class="summary-label" data-i18n="net_income">Net</span><span class="summary-value green" id="net-income">£0</span></div>
+                <div class="summary-item"><span class="summary-label">Net</span><span class="summary-value green" id="net-income">£0</span></div>
             </div>
             <div class="progress-bar"><div class="progress-fill" id="tax-progress" style="width:0%;background:var(--danger)"></div></div>
-            <div style="text-align:center;font-size:12px;color:var(--text-secondary)"><span data-i18n="effective_rate">Effective Rate</span>: <span id="effective-rate">0%</span></div>
+            <div style="text-align:center;font-size:12px;color:var(--text-secondary)">Effective Rate: <span id="effective-rate">0%</span></div>
         </div>
 
         <div class="card">
-            <div class="card-title"><span data-i18n="income_breakdown">Income Breakdown</span></div>
+            <div class="card-title">Income Breakdown</div>
             <div class="chart-container"><canvas id="incomeChart"></canvas></div>
         </div>
 
         <div class="card">
-            <div class="card-title"><span data-i18n="tax_breakdown">Tax Breakdown</span></div>
+            <div class="card-title">Tax Breakdown</div>
             <div class="chart-container"><canvas id="taxChart"></canvas></div>
         </div>
 
         <div class="card">
-            <div class="card-title"><span data-i18n="asset_allocation">Asset Allocation</span></div>
+            <div class="card-title">Asset Allocation</div>
             <div class="chart-container"><canvas id="assetChart"></canvas></div>
-            <div class="allocation-grid" id="allocation-legend"></div>
         </div>
     </div>
 
-    <!-- Income Tab -->
     <div id="tab-income" class="content">
         <div class="card">
-            <div class="card-title"><span data-i18n="income_sources">Income Sources</span><button class="btn btn-add" onclick="openModal('income')">+ Add</button></div>
-            <div id="income-list"><div class="empty"><p data-i18n="no_income">No income added yet</p></div></div>
+            <div class="card-title">Income Sources<button class="btn btn-add" onclick="openModal('income')">+ Add</button></div>
+            <div id="income-list"></div>
         </div>
 
         <div class="card">
-            <div class="card-title"><span data-i18n="deductions">Deductions</span><button class="btn btn-add" onclick="openModal('deduction')">+ Add</button></div>
-            <div id="deduction-list"><div class="empty"><p data-i18n="no_deductions">No deductions added yet</p></div></div>
+            <div class="card-title">Deductions<button class="btn btn-add" onclick="openModal('deduction')">+ Add</button></div>
+            <div id="deduction-list"></div>
         </div>
     </div>
 
-    <!-- Assets Tab -->
     <div id="tab-assets" class="content">
         <div class="card">
-            <div class="card-title"><span data-i18n="savings_assets">Savings & Assets</span><button class="btn btn-add" onclick="openModal('asset')">+ Add</button></div>
+            <div class="card-title">Savings & Assets<button class="btn btn-add" onclick="openModal('asset')">+ Add</button></div>
             <div class="summary-grid" style="margin-bottom:16px;">
-                <div class="summary-item"><span class="summary-label" data-i18n="total_assets">Total Assets</span><span class="summary-value blue" id="total-assets">£0</span></div>
-                <div class="summary-item"><span class="summary-label" data-i18n="tax_free">Tax-Free</span><span class="summary-value green" id="tax-free-assets">£0</span></div>
+                <div class="summary-item"><span class="summary-label">Total</span><span class="summary-value blue" id="total-assets">£0</span></div>
+                <div class="summary-item"><span class="summary-label">Tax-Free</span><span class="summary-value green" id="tax-free-assets">£0</span></div>
             </div>
-            <div id="asset-list"><div class="empty"><p data-i18n="no_assets">No assets added yet</p></div></div>
+            <div id="asset-list"></div>
         </div>
 
         <div class="card">
-            <div class="card-title"><span data-i18n="annual_allowances">Annual Allowances</span></div>
+            <div class="card-title">Annual Allowances</div>
             <div class="progress-bar"><div class="progress-fill" id="isa-progress" style="width:0%;background:var(--success)"></div></div>
             <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;"><span>ISA</span><span id="isa-used">£0 / £20,000</span></div>
             <div class="progress-bar"><div class="progress-fill" id="pension-progress" style="width:0%;background:var(--primary)"></div></div>
@@ -170,207 +158,180 @@
         </div>
     </div>
 
-    <!-- Optimize Tab -->
-    <div id="tab-optimize" class="content">
-        <div class="card">
-            <div class="card-title" data-i18n="optimization_tips">Tax Optimization Tips</div>
-            <div id="suggestions-list"><div class="empty"><p data-i18n="add_income_tips">Add income to see suggestions</p></div></div>
-        </div>
-    </div>
-
-    <!-- Guide Tab -->
     <div id="tab-guide" class="content">
         <div class="card">
-            <div class="card-title" data-i18n="income_tax_rates">Income Tax Rates (2024/25)</div>
-            <div class="summary-item"><span>Personal Allowance</span><span>£12,570 @ 0%</span></div>
-            <div class="summary-item"><span>Basic Rate</span><span>£12,571-50,270 @ 20%</span></div>
-            <div class="summary-item"><span>Higher Rate</span><span>£50,271-125,140 @ 40%</span></div>
-            <div class="summary-item"><span>Additional Rate</span><span>Over £125,140 @ 45%</span></div>
+            <div class="card-title">Income Tax Rates (2024/25)</div>
+            <div class="list-item"><div class="list-info"><div class="list-name">Personal Allowance</div></div><span>£12,570 @ 0%</span></div>
+            <div class="list-item"><div class="list-info"><div class="list-name">Basic Rate</div></div><span>£12,571-50,270 @ 20%</span></div>
+            <div class="list-item"><div class="list-info"><div class="list-name">Higher Rate</div></div><span>£50,271-125,140 @ 40%</span></div>
+            <div class="list-item"><div class="list-info"><div class="list-name">Additional Rate</div></div><span>Over £125,140 @ 45%</span></div>
         </div>
+
         <div class="card">
-            <div class="card-title" data-i18n="ni_rates">National Insurance (2024/25)</div>
-            <div class="summary-item"><span>Class 1 Employee (8% / 2%)</span><span>£12,570+</span></div>
-            <div class="summary-item"><span>Class 4 Self-Employed (9% / 2%)</span><span>£12,570+</span></div>
+            <div class="card-title">National Insurance</div>
+            <div class="list-item"><div class="list-info"><div class="list-name">Class 1 Employee</div></div><span>£12,570+ (8% / 2%)</span></div>
+            <div class="list-item"><div class="list-info"><div class="list-name">Class 4 Self-Employed</div></div><span>£12,570+ (9% / 2%)</span></div>
         </div>
+
         <div class="card">
-            <div class="card-title" data-i18n="annual_allowances">Annual Allowances</div>
-            <div class="summary-item"><span>ISA</span><span>£20,000 / year</span></div>
-            <div class="summary-item"><span>Pension</span><span>£60,000 / year</span></div>
-            <div class="summary-item"><span>CGT</span><span>£3,000 / year</span></div>
-            <div class="summary-item"><span>Dividend Allowance</span><span>£500 / year</span></div>
-            <div class="summary-item"><span>PSA (Interest)</span><span>£1,000 / year</span></div>
-        </div>
-        <div class="card">
-            <div class="card-title" data-i18n="tax_settings">Settings</div>
-            <div class="summary-item"><span data-i18n="tax_year">Tax Year</span>
-                <select class="form-select" style="width:auto;" id="tax-year-select" onchange="updateSettings()">
-                    <option value="2024/25">2024/25</option><option value="2025/26">2025/26</option>
-                </select>
-            </div>
-            <div class="summary-item"><span data-i18n="scottish_taxpayer">Scottish Taxpayer</span><div class="toggle" id="scottish-toggle" onclick="toggleSetting('scottish')"></div></div>
-            <div class="summary-item"><span data-i18n="self_employed">Self-Employed</span><div class="toggle" id="self-toggle" onclick="toggleSetting('self')"></div></div>
-            <div class="summary-item" onclick="clearAllData()" style="cursor:pointer;color:var(--danger)"><span data-i18n="clear_all">Clear All Data</span></div>
+            <div class="card-title">Annual Allowances</div>
+            <div class="list-item"><div class="list-info"><div class="list-name">ISA</div></div><span>£20,000</span></div>
+            <div class="list-item"><div class="list-info"><div class="list-name">Pension</div></div><span>£60,000</span></div>
+            <div class="list-item"><div class="list-info"><div class="list-name">CGT</div></div><span>£3,000</span></div>
+            <div class="list-item"><div class="list-info"><div class="list-name">Dividend</div></div><span>£500</span></div>
         </div>
     </div>
 
     <!-- Modals -->
     <div id="modal-income" class="modal">
         <div class="modal-content">
-            <div class="modal-header"><span class="modal-title" data-i18n="add_income">Add Income</span><button class="modal-close" onclick="closeModal('income')">&times;</button></div>
+            <div class="modal-header"><span>Add Income</span><button class="modal-close" onclick="closeModal('income')">&times;</button></div>
             <div class="modal-body">
-                <div class="form-group"><label class="form-label" data-i18n="income_type">Type</label>
+                <div class="form-group"><label class="form-label">Type</label>
                     <select class="form-select" id="income-type">
-                        <option value="salary" data-i18n="income_salary">Salary</option>
-                        <option value="self" data-i18n="income_self">Self-Employment</option>
-                        <option value="interest" data-i18n="income_interest">Interest</option>
-                        <option value="dividend" data-i18n="income_dividend">Dividend</option>
-                        <option value="capital" data-i18n="income_capital">Capital Gains</option>
-                        <option value="rental" data-i18n="income_rental">Rental</option>
+                        <option value="salary">Salary</option>
+                        <option value="self">Self-Employment</option>
+                        <option value="interest">Interest</option>
+                        <option value="dividend">Dividend</option>
+                        <option value="capital">Capital Gains</option>
+                        <option value="rental">Rental</option>
                     </select>
                 </div>
-                <div class="form-group"><label class="form-label" data-i18n="amount">Amount (£)</label><input type="number" class="form-input" id="income-amount"></div>
+                <div class="form-group"><label class="form-label">Amount (£)</label><input type="number" class="form-input" id="income-amount"></div>
             </div>
-            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('income')" data-i18n="cancel">Cancel</button><button class="btn btn-primary" onclick="saveIncome()" data-i18n="save">Save</button></div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('income')">Cancel</button><button class="btn btn-primary" onclick="saveIncome()">Save</button></div>
         </div>
     </div>
 
     <div id="modal-deduction" class="modal">
         <div class="modal-content">
-            <div class="modal-header"><span class="modal-title" data-i18n="add_deduction">Add Deduction</span><button class="modal-close" onclick="closeModal('deduction')">&times;</button></div>
+            <div class="modal-header"><span>Add Deduction</span><button class="modal-close" onclick="closeModal('deduction')">&times;</button></div>
             <div class="modal-body">
-                <div class="form-group"><label class="form-label" data-i18n="deduction_type">Type</label>
+                <div class="form-group"><label class="form-label">Type</label>
                     <select class="form-select" id="deduction-type">
-                        <option value="pension" data-i18n="deduction_pension">Pension</option>
-                        <option value="gift" data-i18n="deduction_gift">Gift Aid</option>
-                        <option value="trading" data-i18n="deduction_trading">Trading</option>
+                        <option value="pension">Pension</option>
+                        <option value="gift">Gift Aid</option>
+                        <option value="trading">Trading</option>
                     </select>
                 </div>
-                <div class="form-group"><label class="form-label" data-i18n="amount">Amount (£)</label><input type="number" class="form-input" id="deduction-amount"></div>
+                <div class="form-group"><label class="form-label">Amount (£)</label><input type="number" class="form-input" id="deduction-amount"></div>
             </div>
-            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('deduction')" data-i18n="cancel">Cancel</button><button class="btn btn-primary" onclick="saveDeduction()" data-i18n="save">Save</button></div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('deduction')">Cancel</button><button class="btn btn-primary" onclick="saveDeduction()">Save</button></div>
         </div>
     </div>
 
     <div id="modal-asset" class="modal">
         <div class="modal-content">
-            <div class="modal-header"><span class="modal-title" data-i18n="add_asset">Add Asset</span><button class="modal-close" onclick="closeModal('asset')">&times;</button></div>
+            <div class="modal-header"><span>Add Asset</span><button class="modal-close" onclick="closeModal('asset')">&times;</button></div>
             <div class="modal-body">
-                <div class="form-group"><label class="form-label" data-i18n="asset_type">Type</label>
+                <div class="form-group"><label class="form-label">Type</label>
                     <select class="form-select" id="asset-type">
-                        <option value="isa" data-i18n="asset_isa">ISA (Tax-Free)</option>
-                        <option value="ns" data-i18n="asset_ns">National Savings</option>
-                        <option value="savings" data-i18n="asset_savings">Bank Savings</option>
-                        <option value="investment" data-i18n="asset_investment">Investment Account</option>
-                        <option value="pension" data-i18n="asset_pension">Pension</option>
-                        <option value="property" data-i18n="asset_property">Property</option>
+                        <option value="isa">ISA (Tax-Free)</option>
+                        <option value="ns">National Savings</option>
+                        <option value="savings">Bank Savings</option>
+                        <option value="investment">Investment</option>
+                        <option value="pension">Pension</option>
+                        <option value="property">Property</option>
                     </select>
                 </div>
-                <div class="form-group"><label class="form-label" data-i18n="asset_name">Name</label><input type="text" class="form-input" id="asset-name" placeholder="e.g., Santander ISA"></div>
-                <div class="form-group"><label class="form-label" data-i18n="amount">Amount (£)</label><input type="number" class="form-input" id="asset-amount"></div>
+                <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="asset-name"></div>
+                <div class="form-group"><label class="form-label">Amount (£)</label><input type="number" class="form-input" id="asset-amount"></div>
             </div>
-            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('asset')" data-i18n="cancel">Cancel</button><button class="btn btn-primary" onclick="saveAsset()" data-i18n="save">Save</button></div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('asset')">Cancel</button><button class="btn btn-primary" onclick="saveAsset()">Save</button></div>
         </div>
     </div>
 
     <script>
-        const translations = {
-            en: { tab_dashboard:'Dashboard',tab_income:'Income',tab_assets:'Assets',tab_optimize:'Optimize',tab_guide:'Guide',summary_title:'Tax Summary',gross_income:'Gross',income_tax:'Tax',national_insurance:'NI',net_income:'Net',effective_rate:'Effective Rate',income_breakdown:'Income Breakdown',tax_breakdown:'Tax Breakdown',asset_allocation:'Asset Allocation',income_sources:'Income Sources',deductions:'Deductions',savings_assets:'Savings & Assets',total_assets:'Total Assets',tax_free:'Tax-Free',no_assets:'No assets added yet',isa_progress:'ISA Allowance',pension_progress:'Pension Allowance',optimization_tips:'Tax Optimization Tips',income_tax_rates:'Income Tax Rates',ni_rates:'National Insurance',annual_allowances:'Annual Allowances',tax_settings:'Settings',tax_year:'Tax Year',scottish_taxpayer:'Scottish Taxpayer',self_employed:'Self-Employed',clear_all:'Clear All Data',add_income:'Add Income',income_type:'Type',amount:'Amount (£)',description:'Description',save:'Save',cancel:'Cancel',add_deduction:'Add Deduction',deduction_type:'Type',add_asset:'Add Asset',asset_type:'Type',asset_name:'Name',asset_isa:'ISA',asset_ns:'National Savings',asset_savings:'Bank Savings',asset_investment:'Investment',asset_pension:'Pension',asset_property:'Property',income_salary:'Salary',income_self:'Self-Employment',income_interest:'Interest',income_dividend:'Dividend',income_capital:'Capital Gains',income_rental:'Rental',deduction_pension:'Pension',deduction_gift:'Gift Aid',deduction_trading:'Trading',no_income:'No income added yet',no_deductions:'No deductions added yet',add_income_tips:'Add income to see suggestions' },
-            zh: { tab_dashboard:'主页',tab_income:'收入',tab_assets:'资产',tab_optimize:'优化',tab_guide:'指南',summary_title:'税务摘要',gross_income:'总收入',income_tax:'所得税',national_insurance:'NI',net_income:'净收入',effective_rate:'有效税率',income_breakdown:'收入分布',tax_breakdown:'税务分布',asset_allocation:'资产配置',income_sources:'收入来源',deductions:'扣除项',savings_assets:'储蓄与资产',total_assets:'总资产',tax_free:'免税',no_assets:'暂无资产记录',isa_progress:'ISA额度',pension_progress:'养老金额度',optimization_tips:'税务优化建议',income_tax_rates:'所得税率',ni_rates:'国民保险',annual_allowances:'年度免税额',tax_settings:'设置',tax_year:'税务年度',scottish_taxpayer:'苏格兰纳税人',self_employed:'自雇人士',clear_all:'清除数据',add_income:'添加收入',income_type:'类型',amount:'金额 (£)',description:'描述',save:'保存',cancel:'取消',add_deduction:'添加扣除',deduction_type:'类型',add_asset:'添加资产',asset_type:'类型',asset_name:'名称',asset_isa:'ISA账户',asset_ns:'国民储蓄',asset_savings:'银行储蓄',asset_investment:'投资账户',asset_pension:'养老金',asset_property:'房产',income_salary:'工资',income_self:'自雇',income_interest:'利息',income_dividend:'股息',income_capital:'资本收益',income_rental:'租金',deduction_pension:'养老金',deduction_gift:'慈善',deduction_trading:'营业',no_income:'暂无收入记录',no_deductions:'暂无扣除记录',add_income_tips:'添加收入以查看建议' }
-        };
         let state = { incomes:[], deductions:[], assets:[], taxYear:'2024/25', isScottish:false, isSelfEmployed:false, lang:'en' };
         let charts = {};
-        const colors = { salary:'#3B82F6', self:'#8B5CF6', interest:'#F59E0B', dividend:'#10B981', capital:'#EC4899', rental:'#6366F1' };
-        const assetColors = { isa:'#10B981', ns:'#3B82F6', savings:'#F59E0B', investment:'#EC4899', pension:'#8B5CF6', property:'#EF4444' };
-        const iconMap = { salary:'💰', self:'💼', interest:'💵', dividend:'📊', capital:'📈', rental:'🏠' };
-        const assetIcon = { isa:'🏦', ns:'🇬🇧', savings:'💰', investment:'📈', pension:'💼', property:'🏠' };
+        
+        const icons = { salary:'💰', self:'💼', interest:'💵', dividend:'📊', capital:'📈', rental:'🏠', pension:'💼', gift:'🎁', trading:'🛒', isa:'🏦', ns:'🇬🇧', savings:'💰', investment:'📈', property:'🏠' };
+        const colors = { salary:'#3B82F6', self:'#8B5CF6', interest:'#F59E0B', dividend:'#10B981', capital:'#EC4899', rental:'#6366F1', pension:'#8B5CF6', gift:'#F59E0B', trading:'#F59E0B', isa:'#10B981', ns:'#3B82F6', savings:'#F59E0B', investment:'#EC4899', property:'#EF4444' };
+        const labels = { salary:'Salary', self:'Self-Employment', interest:'Interest', dividend:'Dividend', capital:'Capital Gains', rental:'Rental', pension:'Pension', gift:'Gift Aid', trading:'Trading', isa:'ISA', ns:'National Savings', savings:'Bank Savings', investment:'Investment', property:'Property' };
         
         function switchTab(tab) {
-            document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-            document.querySelectorAll('.content').forEach(c=>c.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
             document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active');
             document.getElementById(`tab-${tab}`).classList.add('active');
-            if(tab === 'dashboard') updateCharts();
-        }
-        
-        function setLang(lang) {
-            state.lang = lang;
-            document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
-            document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`).classList.add('active');
-            document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent = translations[lang][el.dataset.i18n] || el.textContent);
-            renderAll();
+            if (tab === 'dashboard') updateCharts();
         }
         
         function calculateTax() {
             const PA = 12570, BR = 50270, HR = 125140;
-            const BR_RATE = 0.20, HR_RATE = 0.40, AR_RATE = 0.45;
-            let totalIncome = state.incomes.reduce((s,i)=>s+i.amount,0) - state.deductions.reduce((s,d)=>s+d.amount,0);
-            let taxable = Math.max(0, totalIncome - PA);
-            let incomeTax = taxable <= BR-PA ? taxable*BR_RATE : taxable <= HR-PA ? (BR-PA)*BR_RATE + (taxable-(BR-PA))*HR_RATE : (BR-PA)*BR_RATE + (HR-BR)*HR_RATE + (taxable-(HR-PA))*AR_RATE;
-            let ni = 0, salary = state.incomes.filter(i=>i.type==='salary').reduce((s,i)=>s+i.amount,0), self = state.incomes.filter(i=>i.type==='self').reduce((s,i)=>s+i.amount,0);
-            if(salary > 0) { let n = Math.max(0, salary - PA); ni += n <= BR-PA ? n*0.08 : (BR-PA)*0.08 + (n-(BR-PA))*0.02; }
-            if(self > 0 && state.isSelfEmployed) { let n = Math.max(0, self - PA); ni += n <= BR-PA ? n*0.09 : (BR-PA)*0.09 + (n-(BR-PA))*0.02; }
-            return { gross:totalIncome, incomeTax, ni, totalTax:incomeTax+ni, net:totalIncome-incomeTax-ni, effective:totalIncome>0?(incomeTax+ni)/totalIncome*100:0 };
+            let total = state.incomes.reduce((s,i) => s + i.amount, 0) - state.deductions.reduce((s,d) => s + d.amount, 0);
+            let taxable = Math.max(0, total - PA);
+            let incomeTax = taxable <= BR-PA ? taxable*0.20 : taxable <= HR-PA ? (BR-PA)*0.20 + (taxable-(BR-PA))*0.40 : (BR-PA)*0.20 + (HR-BR)*0.40 + (taxable-(HR-PA))*0.45;
+            let ni = 0, salary = state.incomes.filter(i => i.type === 'salary').reduce((s,i) => s + i.amount, 0), self = state.incomes.filter(i => i.type === 'self').reduce((s,i) => s + i.amount, 0);
+            if (salary > 0) { let n = Math.max(0, salary - PA); ni += n <= BR-PA ? n*0.08 : (BR-PA)*0.08 + (n-(BR-PA))*0.02; }
+            if (self > 0 && state.isSelfEmployed) { let n = Math.max(0, self - PA); ni += n <= BR-PA ? n*0.09 : (BR-PA)*0.09 + (n-(BR-PA))*0.02; }
+            return { gross:total, incomeTax, ni, totalTax:incomeTax+ni, net:total-incomeTax-ni, effective:total>0?(incomeTax+ni)/total*100:0 };
         }
         
         function renderAll() {
             const r = calculateTax();
-            document.getElementById('gross-income').textContent = `£${Math.round(r.gross).toLocaleString()}`;
-            document.getElementById('income-tax').textContent = `£${Math.round(r.incomeTax).toLocaleString()}`;
-            document.getElementById('national-insurance').textContent = `£${Math.round(r.ni).toLocaleString()}`;
-            document.getElementById('net-income').textContent = `£${Math.round(r.net).toLocaleString()}`;
-            document.getElementById('effective-rate').textContent = `${r.effective.toFixed(1)}%`;
-            document.getElementById('tax-progress').style.width = `${Math.min(100, r.effective)}%`;
+            document.getElementById('gross-income').textContent = '£' + Math.round(r.gross).toLocaleString();
+            document.getElementById('income-tax').textContent = '£' + Math.round(r.incomeTax).toLocaleString();
+            document.getElementById('national-insurance').textContent = '£' + Math.round(r.ni).toLocaleString();
+            document.getElementById('net-income').textContent = '£' + Math.round(r.net).toLocaleString();
+            document.getElementById('effective-rate').textContent = r.effective.toFixed(1) + '%';
+            document.getElementById('tax-progress').style.width = Math.min(100, r.effective) + '%';
             
-            let totalAssets = state.assets.reduce((s,a)=>s+a.amount,0);
-            let taxFreeAssets = state.assets.filter(a=>a.type==='isa' || a.type==='ns' || a.type==='pension').reduce((s,a)=>s+a.amount,0);
-            document.getElementById('total-assets').textContent = `£${Math.round(totalAssets).toLocaleString()}`;
-            document.getElementById('tax-free-assets').textContent = `£${Math.round(taxFreeAssets).toLocaleString()}`;
+            let totalAssets = state.assets.reduce((s,a) => s + a.amount, 0);
+            let taxFreeAssets = state.assets.filter(a => ['isa','ns','pension'].includes(a.type)).reduce((s,a) => s + a.amount, 0);
+            document.getElementById('total-assets').textContent = '£' + Math.round(totalAssets).toLocaleString();
+            document.getElementById('tax-free-assets').textContent = '£' + Math.round(taxFreeAssets).toLocaleString();
             
-            let isaUsed = state.assets.filter(a=>a.type==='isa').reduce((s,a)=>s+a.amount,0);
-            let pensionUsed = state.assets.filter(a=>a.type==='pension').reduce((s,a)=>s+a.amount,0);
-            document.getElementById('isa-used').textContent = `£${Math.round(isaUsed).toLocaleString()} / £20,000`;
-            document.getElementById('isa-progress').style.width = `${Math.min(100, isaUsed/20000*100)}%`;
-            document.getElementById('pension-used').textContent = `£${Math.round(pensionUsed).toLocaleString()} / £60,000`;
-            document.getElementById('pension-progress').style.width = `${Math.min(100, pensionUsed/60000*100)}%`;
+            let isaUsed = state.assets.filter(a => a.type === 'isa').reduce((s,a) => s + a.amount, 0);
+            let pensionUsed = state.assets.filter(a => a.type === 'pension').reduce((s,a) => s + a.amount, 0);
+            document.getElementById('isa-used').textContent = '£' + Math.round(isaUsed).toLocaleString() + ' / £20,000';
+            document.getElementById('isa-progress').style.width = Math.min(100, isaUsed/20000*100) + '%';
+            document.getElementById('pension-used').textContent = '£' + Math.round(pensionUsed).toLocaleString() + ' / £60,000';
+            document.getElementById('pension-progress').style.width = Math.min(100, pensionUsed/60000*100) + '%';
             
-            document.getElementById('income-list').innerHTML = state.incomes.length ? state.incomes.map((i,idx)=>
-                `<div class="asset-item"><div class="asset-icon ${i.type}">${iconMap[i.type]}</div><div class="asset-info"><div class="asset-name">${i.type==='salary'?'Salary':i.type==='self'?'Self-Employment':i.type==='interest'?'Interest':i.type==='dividend'?'Dividend':i.type==='capital'?'Capital Gains':'Rental'}</div></div><div class="asset-value">+£${Math.round(i.amount).toLocaleString()}</div><button class="delete-btn" onclick="deleteIncome(${idx})">×</button></div>`).join('') : `<div class="empty"><p>${translations[state.lang].no_income}</p></div>`;
+            // Render income list
+            const incomeList = document.getElementById('income-list');
+            if (state.incomes.length === 0) {
+                incomeList.innerHTML = '<div class="empty"><p>No income added yet</p></div>';
+            } else {
+                incomeList.innerHTML = state.incomes.map((item, idx) => 
+                    '<div class="list-item"><div class="list-icon" style="background:' + colors[item.type] + '20">' + icons[item.type] + '</div><div class="list-info"><div class="list-name">' + labels[item.type] + '</div></div><div class="list-amount positive">+£' + Math.round(item.amount).toLocaleString() + '</div><button class="delete-btn" onclick="deleteIncome(' + idx + ')">×</button></div>'
+                ).join('');
+            }
             
-            document.getElementById('deduction-list').innerHTML = state.deductions.length ? state.deductions.map((d,idx)=>
-                `<div class="asset-item" style="background:#FEF3C7"><div class="asset-icon" style="background:#FDE68A">➖</div><div class="asset-info"><div class="asset-name">${d.type==='pension'?'Pension':d.type==='gift'?'Gift Aid':'Trading'}</div></div><div class="asset-value" style="color:var(--danger)">-£${Math.round(d.amount).toLocaleString()}</div><button class="delete-btn" onclick="deleteDeduction(${idx})">×</button></div>`).join('') : `<div class="empty"><p>${translations[state.lang].no_deductions}</p></div>`;
+            // Render deduction list
+            const deductionList = document.getElementById('deduction-list');
+            if (state.deductions.length === 0) {
+                deductionList.innerHTML = '<div class="empty"><p>No deductions added yet</p></div>';
+            } else {
+                deductionList.innerHTML = state.deductions.map((item, idx) => 
+                    '<div class="list-item deduction"><div class="list-icon" style="background:' + colors[item.type] + '20">' + icons[item.type] + '</div><div class="list-info"><div class="list-name">' + labels[item.type] + '</div></div><div class="list-amount negative">-£' + Math.round(item.amount).toLocaleString() + '</div><button class="delete-btn" onclick="deleteDeduction(' + idx + ')">×</button></div>'
+                ).join('');
+            }
             
-            document.getElementById('asset-list').innerHTML = state.assets.length ? state.assets.map((a,idx)=>
-                `<div class="asset-item"><div class="asset-icon ${a.type}">${assetIcon[a.type]}</div><div class="asset-info"><div class="asset-name">${a.name || (a.type==='isa'?'ISA':a.type==='ns'?'National Savings':a.type==='savings'?'Bank Savings':a.type==='investment'?'Investment':a.type==='pension'?'Pension':'Property')}</div></div><div class="asset-value">£${Math.round(a.amount).toLocaleString()}</div><button class="delete-btn" onclick="deleteAsset(${idx})">×</button></div>`).join('') : `<div class="empty"><p>${translations[state.lang].no_assets}</p></div>`;
+            // Render asset list
+            const assetList = document.getElementById('asset-list');
+            if (state.assets.length === 0) {
+                assetList.innerHTML = '<div class="empty"><p>No assets added yet</p></div>';
+            } else {
+                assetList.innerHTML = state.assets.map((item, idx) => 
+                    '<div class="list-item"><div class="list-icon" style="background:' + colors[item.type] + '20">' + icons[item.type] + '</div><div class="list-info"><div class="list-name">' + (item.name || labels[item.type]) + '</div></div><div class="list-amount positive">£' + Math.round(item.amount).toLocaleString() + '</div><button class="delete-btn" onclick="deleteAsset(' + idx + ')">×</button></div>'
+                ).join('');
+            }
             
-            renderSuggestions();
-            if(document.getElementById('tab-dashboard').classList.contains('active')) updateCharts();
-        }
-        
-        function renderSuggestions() {
-            const s = document.getElementById('suggestions-list');
-            if(state.incomes.length === 0) { s.innerHTML = `<div class="empty"><p>${translations[state.lang].add_income_tips}</p></div>`; return; }
-            const total = state.incomes.reduce((s,i)=>s+i.amount,0);
-            const salary = state.incomes.filter(i=>i.type==='salary').reduce((s,i)=>s+i.amount,0);
-            let tips = [];
-            if(total > 12570) tips.push({title:state.lang==='en'?'Maximize ISA':'最大化ISA',desc:state.lang==='en'?'£20,000 tax-free':'£20,000免税额度',savings:Math.min(20000,total*0.20),prio:'high'});
-            if(salary > 0) tips.push({title:state.lang==='en'?'Pension Relief':'养老金退税',desc:state.lang==='en'?'Save NI + Tax':'节省NI+所得税',savings:Math.min(40000,salary*0.28),prio:'high'});
-            if(state.assets.filter(a=>a.type==='savings').length > 0) tips.push({title:state.lang==='en'?'Move to ISA':'转入ISA',desc:state.lang==='en'?'Interest may be taxed':'利息可能需要缴税',savings:0,prio:'medium'});
-            s.innerHTML = tips.map(t=>
-                `<div class="card" style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:600">${t.title}</span><span style="font-size:10px;background:${t.prio==='high'?'#FEE2E2':'#FEF3C7'};color:${t.prio==='high'?'#DC2626':'#D97706'};padding:4px 8px;border-radius:10px">${t.prio==='high'?'High':'Medium'}</span></div><div style="font-size:13px;color:var(--text-secondary);margin:8px 0">${t.desc}</div>${t.savings?`<div style="color:var(--success);font-weight:600">£${Math.round(t.savings).toLocaleString()} ${state.lang==='en'?'saved':'节省'}</div>`:''}</div>`).join('');
-        }
-        
-        function initCharts() {
-            const chartDefaults = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
-            charts.income = new Chart(document.getElementById('incomeChart'), { type:'doughnut', data:{labels:[],datasets:[{data:[],backgroundObject:Object.values(colors)}]}, options:{...chartDefaults, cutout:'60%'} });
-            charts.tax = new Chart(document.getElementById('taxChart'), { type:'bar', data:{labels:['Tax','NI'],datasets:[{data:[0,0],backgroundObject:['#EF4444','#F59E0B']}]}, options:{...chartDefaults, indexAxis:'y'} });
-            charts.asset = new Chart(document.getElementById('assetChart'), { type:'doughnut', data:{labels:[],datasets:[{data:[],backgroundObject:Object.values(assetColors)}]}, options:{...chartDefaults, cutout:'60%'} });
+            updateCharts();
         }
         
         function updateCharts() {
-            if(!charts.income) initCharts();
+            if (!charts.income) {
+                charts.income = new Chart(document.getElementById('incomeChart'), { type:'doughnut', data:{labels:[],datasets:[{data:[],backgroundColor:Object.values(colors)}]}, options:{responsive:true,maintainAspectRatio:false,cutout:'60%'} });
+                charts.tax = new Chart(document.getElementById('taxChart'), { type:'bar', data:{labels:['Tax','NI'],datasets:[{data:[0,0],backgroundColor:['#EF4444','#F59E0B']}]}, options:{responsive:true,maintainAspectRatio:false,indexAxis:'y'} });
+                charts.asset = new Chart(document.getElementById('assetChart'), { type:'doughnut', data:{labels:[],datasets:[{data:[],backgroundColor:Object.values(colors)}]}, options:{responsive:true,maintainAspectRatio:false,cutout:'60%'} });
+            }
+            
             const incomeByType = {};
-            state.incomes.forEach(i=>{ incomeByType[i.type] = (incomeByType[i.type]||0) + i.amount; });
-            charts.income.data.labels = Object.keys(incomeByType).map(k=>k.charAt(0).toUpperCase()+k.slice(1));
+            state.incomes.forEach(i => { incomeByType[i.type] = (incomeByType[i.type]||0) + i.amount; });
+            charts.income.data.labels = Object.keys(incomeByType).map(k => labels[k]);
             charts.income.data.datasets[0].data = Object.values(incomeByType);
             charts.income.update();
             
@@ -379,23 +340,20 @@
             charts.tax.update();
             
             const assetsByType = {};
-            state.assets.forEach(a=>{ assetsByType[a.type] = (assetsByType[a.type]||0) + a.amount; });
-            charts.asset.data.labels = Object.keys(assetsByType).map(k=>k==='isa'?'ISA':k==='ns'?'National Savings':k==='savings'?'Bank':k==='investment'?'Investment':k==='pension'?'Pension':'Property');
+            state.assets.forEach(a => { assetsByType[a.type] = (assetsByType[a.type]||0) + a.amount; });
+            charts.asset.data.labels = Object.keys(assetsByType).map(k => labels[k]);
             charts.asset.data.datasets[0].data = Object.values(assetsByType);
             charts.asset.update();
-            
-            const legend = document.getElementById('allocation-legend');
-            legend.innerHTML = Object.entries(assetsByType).map(([k,v])=>
-                `<div class="allocation-item"><div class="allocation-dot" style="background:${assetColors[k]}"></div><span>${k==='isa'?'ISA':k==='ns'?'NS':k==='savings'?'Bank':k==='investment'?'Invest':k==='pension'?'Pension':'Property'}: £${Math.round(v).toLocaleString()}</span></div>`).join('');
         }
         
-        function openModal(type) { document.getElementById(`modal-${type}`).classList.add('active'); }
-        function closeModal(type) { document.getElementById(`modal-${type}`).classList.remove('active'); }
+        function openModal(type) { document.getElementById('modal-'+type).classList.add('active'); }
+        function closeModal(type) { document.getElementById('modal-'+type).classList.remove('active'); }
         
         function saveIncome() {
-            const type = document.getElementById('income-type').value, amount = parseFloat(document.getElementById('income-amount').value);
-            if(!amount) return;
-            state.incomes.push({type,amount});
+            const type = document.getElementById('income-type').value;
+            const amount = parseFloat(document.getElementById('income-amount').value);
+            if (!amount) return;
+            state.incomes.push({type, amount});
             closeModal('income');
             document.getElementById('income-amount').value = '';
             renderAll();
@@ -403,9 +361,10 @@
         }
         
         function saveDeduction() {
-            const type = document.getElementById('deduction-type').value, amount = parseFloat(document.getElementById('deduction-amount').value);
-            if(!amount) return;
-            state.deductions.push({type,amount});
+            const type = document.getElementById('deduction-type').value;
+            const amount = parseFloat(document.getElementById('deduction-amount').value);
+            if (!amount) return;
+            state.deductions.push({type, amount});
             closeModal('deduction');
             document.getElementById('deduction-amount').value = '';
             renderAll();
@@ -413,9 +372,11 @@
         }
         
         function saveAsset() {
-            const type = document.getElementById('asset-type').value, name = document.getElementById('asset-name').value, amount = parseFloat(document.getElementById('asset-amount').value);
-            if(!amount) return;
-            state.assets.push({type,name,amount});
+            const type = document.getElementById('asset-type').value;
+            const name = document.getElementById('asset-name').value;
+            const amount = parseFloat(document.getElementById('asset-amount').value);
+            if (!amount) return;
+            state.assets.push({type, name, amount});
             closeModal('asset');
             document.getElementById('asset-amount').value = '';
             document.getElementById('asset-name').value = '';
@@ -426,14 +387,20 @@
         function deleteIncome(idx) { state.incomes.splice(idx,1); renderAll(); saveData(); }
         function deleteDeduction(idx) { state.deductions.splice(idx,1); renderAll(); saveData(); }
         function deleteAsset(idx) { state.assets.splice(idx,1); renderAll(); saveData(); }
-        function toggleSetting(key) { if(key==='scottish'){ state.isScottish=!state.isScottish; document.getElementById('scottish-toggle').classList.toggle('active',state.isScottish); } else { state.isSelfEmployed=!state.isSelfEmployed; document.getElementById('self-toggle').classList.toggle('active',state.isSelfEmployed); } saveData(); }
-        function updateSettings() { state.taxYear = document.getElementById('tax-year-select').value; saveData(); }
-        function clearAllData() { if(confirm(state.lang==='zh'?'确定清除所有数据?':'Clear all data?')) { state.incomes=[]; state.deductions=[]; state.assets=[]; renderAll(); saveData(); } }
+        
         function saveData() { localStorage.setItem('ukTaxData', JSON.stringify(state)); }
-        function loadData() { const d = localStorage.getItem('ukTaxData'); if(d){ state = JSON.parse(d); document.getElementById('tax-year-select').value = state.taxYear; document.getElementById('scottish-toggle').classList.toggle('active',state.isScottish); document.getElementById('self-toggle').classList.toggle('active',state.isSelfEmployed); renderAll(); setTimeout(initCharts,100); } }
-        document.addEventListener('DOMContentLoaded', function() {
-            loadData();
-        });
+        
+        function loadData() {
+            const d = localStorage.getItem('ukTaxData');
+            if (d) {
+                state = JSON.parse(d);
+                renderAll();
+            } else {
+                renderAll();
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', loadData);
     </script>
 </body>
 </html>
