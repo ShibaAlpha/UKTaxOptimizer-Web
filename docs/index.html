@@ -431,7 +431,9 @@
         function clearAllData() { if(confirm(state.lang==='zh'?'确定清除所有数据?':'Clear all data?')) { state.incomes=[]; state.deductions=[]; state.assets=[]; renderAll(); saveData(); } }
         function saveData() { localStorage.setItem('ukTaxData', JSON.stringify(state)); }
         function loadData() { const d = localStorage.getItem('ukTaxData'); if(d){ state = JSON.parse(d); document.getElementById('tax-year-select').value = state.taxYear; document.getElementById('scottish-toggle').classList.toggle('active',state.isScottish); document.getElementById('self-toggle').classList.toggle('active',state.isSelfEmployed); renderAll(); setTimeout(initCharts,100); } }
-        loadData();
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+        });
     </script>
 </body>
 </html>
