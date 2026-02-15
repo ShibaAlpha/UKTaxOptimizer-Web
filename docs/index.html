@@ -72,6 +72,7 @@
         <div class="active" id="tab-dash" onclick="switchTab('dash')">Dashboard</div>
         <div id="tab-income" onclick="switchTab('income')">Income</div>
         <div id="tab-assets" onclick="switchTab('assets')">Assets</div>
+        <div id="tab-optimize" onclick="switchTab('optimize')">Optimize</div>
         <div id="tab-guide" onclick="switchTab('guide')">Guide</div>
     </nav>
 
@@ -277,6 +278,41 @@
                 astList.innerHTML = astHTML;
             }
             
+            // Render suggestions
+            var sugList = document.getElementById('suggestions-list');
+            if (state.incomes.length === 0) {
+                sugList.innerHTML = '<div class="empty">Add income to see suggestions</div>';
+            } else {
+                var total = state.incomes.reduce(function(s,i){return s + i.amount},0);
+                var salary = state.incomes.filter(function(i){return i.type === 'salary'}).reduce(function(s,i){return s + i.amount},0);
+                var tips = [];
+                
+                if (total > 12570) {
+                    tips.push({title: 'Maximize ISA', desc: 'Use your £20,000 tax-free allowance', savings: Math.min(20000, total * 0.20)});
+                }
+                if (salary > 0) {
+                    tips.push({title: 'Pension Relief', desc: 'Save NI + Tax on contributions', savings: Math.min(40000, salary * 0.28)});
+                }
+                if (state.assets.filter(function(a){return a.type === 'savings'}).length > 0) {
+                    tips.push({title: 'Move to ISA', desc: 'Transfer savings to avoid tax on interest'});
+                }
+                
+                var sugHTML = '';
+                for (var i = 0; i < tips.length; i++) {
+                    var t = tips[i];
+                    sugHTML += '<div class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><b>' + t.title + '</b><span style="font-size:10px;background:#FEE2E2;color:#DC2626;padding:4px 8px;border-radius:10px">High</span></div><div style="font-size:13px;color:#666;margin-bottom:8px">' + t.desc + '</div>' + (t.savings ? '<div style="color:var(--s);font-weight:600">Save £' + Math.round(t.savings).toLocaleString() + '</div>' : '') + '</div>';
+                }
+                sugList.innerHTML = sugHTML;
+            }
+            
+            // Update optimize page allowances
+            var isaOpt = state.assets.filter(function(a){return a.type === 'isa'}).reduce(function(s,a){return s + a.amount},0);
+            var pensionOpt = state.assets.filter(function(a){return a.type === 'pension'}).reduce(function(s,a){return s + a.amount},0);
+            document.getElementById('opt-isa').style.width = Math.min(100, isaOpt/20000*100) + '%';
+            document.getElementById('opt-isa-text').textContent = '£' + Math.round(isaOpt).toLocaleString() + ' / £20,000';
+            document.getElementById('opt-pension').style.width = Math.min(100, pensionOpt/60000*100) + '%';
+            document.getElementById('opt-pension-text').textContent = '£' + Math.round(pensionOpt).toLocaleString() + ' / £60,000';
+            
             updateCharts();
         }
 
@@ -355,3 +391,25 @@
     </script>
 </body>
 </html>
+
+    <!-- OPTIMIZE -->
+    <div class="page" id="page-optimize">
+        <div class="card">
+            <div class="card-title">Tax Optimization Tips</div>
+            <div id="suggestions-list"></div>
+        </div>
+        <div class="card">
+            <div class="card-title">Your Tax Bands</div>
+            <div class="guide-row"><b>Personal Allowance</b><span>£0 - £12,570 (0%)</span></div>
+            <div class="guide-row"><b>Basic Rate</b><span>£12,571 - £50,270 (20%)</span></div>
+            <div class="guide-row"><b>Higher Rate</b><span>£50,271 - £125,140 (40%)</span></div>
+            <div class="guide-row"><b>Additional Rate</b><span>Over £125,140 (45%)</span></div>
+        </div>
+        <div class="card">
+            <div class="card-title">Annual Allowances Used</div>
+            <div class="progress-bar"><div class="progress-fill" id="opt-isa" style="width:0%;background:var(--s)"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:12px"><span>ISA Allowance</span><span id="opt-isa-text">£0 / £20,000</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="opt-pension" style="width:0%;background:var(--p)"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span>Pension Allowance</span><span id="opt-pension-text">£0 / £60,000</span></div>
+        </div>
+    </div>
