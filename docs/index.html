@@ -25,6 +25,7 @@
         .summary-value.green { color: var(--success); }
         .summary-value.red { color: var(--danger); }
         .summary-value.blue { color: var(--primary); }
+        .summary-value.orange { color: var(--warning); }
         .income-item { display: flex; align-items: center; padding: 12px; background: var(--background); border-radius: 12px; margin-bottom: 8px; }
         .income-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 18px; }
         .income-icon.salary { background: #DBEAFE; }
@@ -32,9 +33,9 @@
         .income-icon.dividend { background: #D1FAE5; }
         .income-icon.capital { background: #FCE7F3; }
         .income-icon.rental { background: #E0E7FF; }
+        .income-icon.ni { background: #FEF3C7; }
         .income-info { flex: 1; }
         .income-type { font-size: 14px; font-weight: 500; }
-        .income-desc { font-size: 12px; color: var(--text-secondary); }
         .income-amount { font-size: 16px; font-weight: 600; color: var(--success); margin-right: 12px; }
         .delete-btn { width: 32px; height: 32px; border: none; background: none; color: var(--danger); cursor: pointer; font-size: 18px; }
         .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all 0.2s; }
@@ -66,11 +67,6 @@
         .suggestion-badge.medium { background: #FEF3C7; color: #D97706; }
         .suggestion-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; }
         .suggestion-savings { font-size: 14px; color: var(--success); font-weight: 600; }
-        .knowledge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-        .knowledge-item { background: var(--background); border-radius: 12px; padding: 16px 12px; text-align: center; cursor: pointer; }
-        .knowledge-item:active { transform: scale(0.95); }
-        .knowledge-icon { font-size: 24px; margin-bottom: 8px; }
-        .knowledge-label { font-size: 12px; color: var(--text-secondary); }
         .rate-card { background: var(--background); border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .rate-name { font-size: 14px; }
         .rate-value { font-size: 16px; font-weight: 600; color: var(--primary); }
@@ -81,6 +77,7 @@
         .toggle.active::after { transform: translateX(20px); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-in { animation: fadeIn 0.3s ease-out; }
+        .ni-badge { background: #FEF3C7; color: #D97706; padding: 2px 8px; border-radius: 8px; font-size: 11px; margin-left: 8px; }
     </style>
 </head>
 <body>
@@ -116,6 +113,8 @@
         <div class="card animate-in">
             <div class="card-title"><span data-i18n="summary_title">Your Tax Summary</span></div>
             <div class="summary-item"><span class="summary-label" data-i18n="gross_income">Gross Income</span><span class="summary-value blue" id="gross-income">£0</span></div>
+            <div class="summary-item"><span class="summary-label" data-i18n="income_tax">Income Tax</span><span class="summary-value red" id="income-tax">£0</span></div>
+            <div class="summary-item"><span class="summary-label"><span class="ni-badge">NI</span> <span data-i18n="national_insurance">National Insurance</span></span><span class="summary-value orange" id="national-insurance">£0</span></div>
             <div class="summary-item"><span class="summary-label" data-i18n="total_tax">Total Tax</span><span class="summary-value red" id="total-tax">£0</span></div>
             <div class="summary-item"><span class="summary-label" data-i18n="net_income">Net Income</span><span class="summary-value green" id="net-income">£0</span></div>
             <div class="summary-item"><span class="summary-label" data-i18n="effective_rate">Effective Rate</span><span class="summary-value" id="effective-rate">0%</span></div>
@@ -141,11 +140,18 @@
 
     <div id="tab-guide" class="content">
         <div class="card animate-in">
-            <div class="card-title" data-i18n="tax_rates_2024">Income Tax Rates (2024/25)</div>
+            <div class="card-title" data-i18n="income_tax_rates">Income Tax Rates (2024/25)</div>
             <div class="rate-card"><span class="rate-name">Personal Allowance</span><span class="rate-value">£12,570 @ 0%</span></div>
             <div class="rate-card"><span class="rate-name">Basic Rate</span><span class="rate-value">£12,571-50,270 @ 20%</span></div>
             <div class="rate-card"><span class="rate-name">Higher Rate</span><span class="rate-value">£50,271-125,140 @ 40%</span></div>
             <div class="rate-card"><span class="rate-name">Additional Rate</span><span class="rate-value">Over £125,140 @ 45%</span></div>
+        </div>
+        <div class="card animate-in">
+            <div class="card-title" data-i18n="ni_rates">National Insurance (2024/25)</div>
+            <div class="rate-card"><span class="rate-name">Class 1 (Employee) 8%</span><span class="rate-value">£12,570-50,270</span></div>
+            <div class="rate-card"><span class="rate-name">Class 1 (Employee) 2%</span><span class="rate-value">Over £50,270</span></div>
+            <div class="rate-card"><span class="rate-name">Class 4 (Self) 9%</span><span class="rate-value">£12,570-50,270</span></div>
+            <div class="rate-card"><span class="rate-name">Class 4 (Self) 2%</span><span class="rate-value">Over £50,270</span></div>
         </div>
         <div class="card animate-in">
             <div class="card-title" data-i18n="annual_allowances">Annual Allowances</div>
@@ -158,10 +164,6 @@
                 <div class="knowledge-item"><div class="knowledge-icon">🛒</div><div class="knowledge-label">Trading<br>£1,000</div></div>
             </div>
         </div>
-        <div class="card animate-in">
-            <div class="card-title" data-i18n="bank_rates">Bank of England Rate</div>
-            <div class="rate-card"><span class="rate-name">🏦 Base Rate</span><span class="rate-value">4.5%</span></div>
-        </div>
     </div>
 
     <div id="tab-settings" class="content">
@@ -173,6 +175,7 @@
                 </select>
             </div>
             <div class="settings-item"><span data-i18n="scottish_taxpayer">Scottish Taxpayer</span><div class="toggle" id="scottish-toggle" onclick="toggleScottish()"></div></div>
+            <div class="settings-item"><span data-i18n="self_employed">Self-Employed</span><div class="toggle" id="self-toggle" onclick="toggleSelf()"></div></div>
         </div>
         <div class="card animate-in">
             <div class="card-title" data-i18n="data">Data</div>
@@ -186,7 +189,8 @@
             <div class="modal-body">
                 <div class="form-group"><label class="form-label" data-i18n="income_type">Income Type</label>
                     <select class="form-select" id="income-type">
-                        <option value="salary" data-i18n="income_salary">Salary</option>
+                        <option value="salary" data-i18n="income_salary">Salary (Employment)</option>
+                        <option value="self" data-i18n="income_self">Self-Employment Profit</option>
                         <option value="interest" data-i18n="income_interest">Interest</option>
                         <option value="dividend" data-i18n="income_dividend">Dividend</option>
                         <option value="capital" data-i18n="income_capital">Capital Gains</option>
@@ -208,7 +212,7 @@
                     <select class="form-select" id="deduction-type">
                         <option value="pension" data-i18n="deduction_pension">Pension Contribution</option>
                         <option value="gift" data-i18n="deduction_gift">Gift Aid</option>
-                        <option value="mortgage" data-i18n="deduction_mortgage">Mortgage Interest</option>
+                        <option value="trading" data-i18n="deduction_trading">Trading Allowance</option>
                     </select>
                 </div>
                 <div class="form-group"><label class="form-label" data-i18n="amount">Amount (£)</label><input type="number" class="form-input" id="deduction-amount" placeholder="0"></div>
@@ -219,12 +223,12 @@
 
     <script>
         const translations = {
-            en: { tab_calc:'Calculator',tab_optimize:'Optimize',tab_guide:'Guide',tab_settings:'Settings',summary_title:'Your Tax Summary',gross_income:'Gross Income',total_tax:'Total Tax',net_income:'Net Income',effective_rate:'Effective Rate',income_sources:'Income Sources',deductions:'Deductions',no_income:'No income added yet',no_deductions:'No deductions added yet',add_income_tips:'Add income to see suggestions',optimization_tips:'Tax Optimization Tips',tax_rates_2024:'Income Tax Rates (2024/25)',annual_allowances:'Annual Allowances',bank_rates:'Bank of England Rate',tax_settings:'Tax Settings',tax_year:'Tax Year',scottish_taxpayer:'Scottish Taxpayer',data:'Data',clear_all:'Clear All Data',add_income:'Add Income',income_type:'Income Type',amount:'Amount (£)',description:'Description (optional)',save:'Save',cancel:'Cancel',add_deduction:'Add Deduction',deduction_type:'Deduction Type',income_salary:'Salary',income_interest:'Interest',income_dividend:'Dividend',income_capital:'Capital Gains',income_rental:'Rental',deduction_pension:'Pension Contribution',deduction_gift:'Gift Aid',deduction_mortgage:'Mortgage Interest' },
-            zh: { tab_calc:'计算器',tab_optimize:'优化',tab_guide:'指南',tab_settings:'设置',summary_title:'您的税务摘要',gross_income:'总收入',total_tax:'总税款',net_income:'净收入',effective_rate:'有效税率',income_sources:'收入来源',deductions:'扣除项',no_income:'暂无收入记录',no_deductions:'暂无扣除记录',add_income_tips:'添加收入以查看建议',optimization_tips:'税务优化建议',tax_rates_2024:'所得税率 (2024/25)',annual_allowances:'年度免税额',bank_rates:'英格兰银行利率',tax_settings:'税务设置',tax_year:'税务年度',scottish_taxpayer:'苏格兰纳税人',data:'数据',clear_all:'清除所有数据',add_income:'添加收入',income_type:'收入类型',amount:'金额 (£)',description:'描述（可选）',save:'保存',cancel:'取消',add_deduction:'添加扣除',deduction_type:'扣除类型',income_salary:'工资',income_interest:'利息',income_dividend:'股息',income_capital:'资本收益',income_rental:'租金',deduction_pension:'养老金供款',deduction_gift:'慈善捐款',deduction_mortgage:'房贷利息' }
+            en: { tab_calc:'Calculator',tab_optimize:'Optimize',tab_guide:'Guide',tab_settings:'Settings',summary_title:'Your Tax Summary',gross_income:'Gross Income',income_tax:'Income Tax',national_insurance:'National Insurance',total_tax:'Total Tax',net_income:'Net Income',effective_rate:'Effective Rate',income_sources:'Income Sources',deductions:'Deductions',no_income:'No income added yet',no_deductions:'No deductions added yet',add_income_tips:'Add income to see suggestions',optimization_tips:'Tax Optimization Tips',income_tax_rates:'Income Tax Rates (2024/25)',national_insurance:'National Insurance',ni_rates:'National Insurance (2024/25)',annual_allowances:'Annual Allowances',tax_settings:'Tax Settings',tax_year:'Tax Year',scottish_taxpayer:'Scottish Taxpayer',self_employed:'Self-Employed',data:'Data',clear_all:'Clear All Data',add_income:'Add Income',income_type:'Income Type',amount:'Amount (£)',description:'Description (optional)',save:'Save',cancel:'Cancel',add_deduction:'Add Deduction',deduction_type:'Deduction Type',income_salary:'Salary',income_self:'Self-Employment',income_interest:'Interest',income_dividend:'Dividend',income_capital:'Capital Gains',income_rental:'Rental',deduction_pension:'Pension Contribution',deduction_gift:'Gift Aid',deduction_trading:'Trading Allowance' },
+            zh: { tab_calc:'计算器',tab_optimize:'优化',tab_guide:'指南',tab_settings:'设置',summary_title:'您的税务摘要',gross_income:'总收入',income_tax:'所得税',national_insurance:'国民保险',total_tax:'总税款',net_income:'净收入',effective_rate:'有效税率',income_sources:'收入来源',deductions:'扣除项',no_income:'暂无收入记录',no_deductions:'暂无扣除记录',add_income_tips:'添加收入以查看建议',optimization_tips:'税务优化建议',income_tax_rates:'所得税率 (2024/25)',national_insurance:'国民保险',ni_rates:'国民保险费率 (2024/25)',annual_allowances:'年度免税额',tax_settings:'税务设置',tax_year:'税务年度',scottish_taxpayer:'苏格兰纳税人',self_employed:'自雇人士',data:'数据',clear_all:'清除所有数据',add_income:'添加收入',income_type:'收入类型',amount:'金额 (£)',description:'描述（可选）',save:'保存',cancel:'取消',add_deduction:'添加扣除',deduction_type:'扣除类型',income_salary:'工资',income_self:'自雇盈利',income_interest:'利息',income_dividend:'股息',income_capital:'资本收益',income_rental:'租金',deduction_pension:'养老金供款',deduction_gift:'慈善捐款',deduction_trading:'营业免税额' }
         };
-        let state = { incomes:[],deductions:[],taxYear:'2024/25',isScottish:false,lang:'en' };
-        const iconMap = { salary:'💰',interest:'💵',dividend:'📊',capital:'📈',rental:'🏠' };
-        const typeLabels = { en:{salary:'Salary',interest:'Interest',dividend:'Dividend',capital:'Capital Gains',rental:'Rental'},zh:{salary:'工资',interest:'利息',dividend:'股息',capital:'资本收益',rental:'租金'} };
+        let state = { incomes:[],deductions:[],taxYear:'2024/25',isScottish:false,isSelfEmployed:false,lang:'en' };
+        const iconMap = { salary:'💰',self:'💼',interest:'💵',dividend:'📊',capital:'📈',rental:'🏠' };
+        const typeLabels = { en:{salary:'Salary',self:'Self-Employment',interest:'Interest',dividend:'Dividend',capital:'Capital Gains',rental:'Rental'},zh:{salary:'工资',self:'自雇',interest:'利息',dividend:'股息',capital:'资本收益',rental:'租金'} };
         
         function switchTab(tab) {
             document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -242,20 +246,47 @@
         }
         
         function calculateTax() {
-            const PA = 12570, BR = 50270, HR = 125140, BR_RATE = 0.20, HR_RATE = 0.40, AR_RATE = 0.45;
-            let totalIncome = state.incomes.reduce((s,i)=>s+i.amount,0) - state.deductions.reduce((s,d)=>s+d.amount*0.20,0);
-            let taxable = Math.max(0, totalIncome - PA);
-            let tax = taxable <= BR-PA ? (taxable * BR_RATE) : 
-                      taxable <= HR-PA ? ((BR-PA)*BR_RATE + (taxable-(BR-PA))*HR_RATE) :
-                      ((BR-PA)*BR_RATE + (HR-BR)*HR_RATE + (taxable-(HR-PA))*AR_RATE);
-            let effective = totalIncome > 0 ? (tax/totalIncome)*100 : 0;
-            return { gross:totalIncome, tax, net:totalIncome-tax, effective };
+            const PA = 12570, BR = 50270, HR = 125140;
+            const BR_RATE = 0.20, HR_RATE = 0.40, AR_RATE = 0.45;
+            
+            // Income tax calculation
+            let totalIncome = state.incomes.reduce((s,i)=>s+i.amount,0) - state.deductions.reduce((s,d)=>s+d.amount,0);
+            let taxableIncome = Math.max(0, totalIncome - PA);
+            let incomeTax = 0;
+            if(taxableIncome <= BR-PA) incomeTax = taxableIncome * BR_RATE;
+            else if(taxableIncome <= HR-PA) incomeTax = (BR-PA)*BR_RATE + (taxableIncome-(BR-PA))*HR_RATE;
+            else incomeTax = (BR-PA)*BR_RATE + (HR-BR)*HR_RATE + (taxableIncome-(HR-PA))*AR_RATE;
+            
+            // National Insurance calculation
+            let ni = 0;
+            const salaryIncome = state.incomes.filter(i=>i.type==='salary').reduce((s,i)=>s+i.amount,0);
+            const selfIncome = state.incomes.filter(i=>i.type==='self').reduce((s,i)=>s+i.amount,0);
+            
+            if(salaryIncome > 0) {
+                const niable = Math.max(0, salaryIncome - 12570);
+                if(niable <= BR-PA) ni += niable * 0.08;
+                else ni += (BR-PA)*0.08 + (niable-(BR-PA)) * 0.02;
+            }
+            
+            if(selfIncome > 0 && state.isSelfEmployed) {
+                const niable = Math.max(0, selfIncome - 12570);
+                if(niable <= BR-PA) ni += niable * 0.09;
+                else ni += (BR-PA)*0.09 + (niable-(BR-PA)) * 0.02;
+            }
+            
+            let totalTax = incomeTax + ni;
+            let net = totalIncome - totalTax;
+            let effective = totalIncome > 0 ? (totalTax/totalIncome)*100 : 0;
+            
+            return { gross:totalIncome, incomeTax, ni, totalTax, net, effective };
         }
         
         function renderAll() {
             const r = calculateTax();
             document.getElementById('gross-income').textContent = `£${Math.round(r.gross).toLocaleString()}`;
-            document.getElementById('total-tax').textContent = `£${Math.round(r.tax).toLocaleString()}`;
+            document.getElementById('income-tax').textContent = `£${Math.round(r.incomeTax).toLocaleString()}`;
+            document.getElementById('national-insurance').textContent = `£${Math.round(r.ni).toLocaleString()}`;
+            document.getElementById('total-tax').textContent = `£${Math.round(r.totalTax).toLocaleString()}`;
             document.getElementById('net-income').textContent = `£${Math.round(r.net).toLocaleString()}`;
             document.getElementById('effective-rate').textContent = `${r.effective.toFixed(1)}%`;
             
@@ -265,7 +296,7 @@
             
             const dlist = document.getElementById('deduction-list');
             dlist.innerHTML = state.deductions.length ? state.deductions.map((d,idx)=>
-                `<div class="income-item animate-in" style="background:#FEF3C7"><div class="income-icon" style="background:#FDE68A">➖</div><div class="income-info"><div class="income-type">${d.type==='pension'?'Pension':d.type==='gift'?'Gift Aid':'Mortgage'}</div></div><div class="income-amount" style="color:var(--danger)">-£${Math.round(d.amount).toLocaleString()}</div><button class="delete-btn" onclick="deleteDeduction(${idx})">×</button></div>`).join('') : `<div class="empty"><p data-i18n="no_deductions">${translations[state.lang].no_deductions}</p></div>`;
+                `<div class="income-item animate-in" style="background:#FEF3C7"><div class="income-icon" style="background:#FDE68A">➖</div><div class="income-info"><div class="income-type">${d.type==='pension'?'Pension':d.type==='gift'?'Gift Aid':'Trading'}</div></div><div class="income-amount" style="color:var(--danger)">-£${Math.round(d.amount).toLocaleString()}</div><button class="delete-btn" onclick="deleteDeduction(${idx})">×</button></div>`).join('') : `<div class="empty"><p data-i18n="no_deductions">${translations[state.lang].no_deductions}</p></div>`;
             
             renderSuggestions();
         }
@@ -277,11 +308,14 @@
                 return;
             }
             const total = state.incomes.reduce((s,i)=>s+i.amount,0);
+            const salary = state.incomes.filter(i=>i.type==='salary').reduce((s,i)=>s+i.amount,0);
             let tips = [];
-            if(total > 12570) tips.push({title:state.lang==='en'?'Maximize ISA':'最大化ISA',desc:state.lang==='en'?'£20,000 tax-free allowance available':'每年£20,000免税额度',savings:Math.min(20000,total*0.20),prio:'high'});
-            tips.push({title:state.lang==='en'?'Pension Contributions':'养老金供款',desc:state.lang==='en'?'Reduce taxable income now':'立即减少应税收入',savings:1000*0.20,prio:'medium'});
-            if(state.incomes.some(i=>i.type==='dividend')) tips.push({title:state.lang==='en'?'Dividend Allowance':'股息免税额',desc:state.lang==='en'?'£500 dividend allowance available':'£500股息免税额度',savings:500*0.0875,prio:'medium'});
-            s.innerHTML = tips.map(t=>`<div class="suggestion-item animate-in"><div class="suggestion-header"><span class="suggestion-title">${t.title}</span><span class="suggestion-badge ${t.prio}">${t.prio==='high'?'High':'Medium'}</span></div><div class="suggestion-desc">${t.desc}</div><div class="suggestion-savings">£${Math.round(t.savings).toLocaleString()} ${state.lang==='en'?'potential savings':'潜在节省'}</div></div>`).join('');
+            if(total > 12570) tips.push({title:state.lang==='en'?'Maximize ISA':'最大化ISA',desc:state.lang==='en'?'£20,000 tax-free allowance':'每年£20,000免税额度',savings:Math.min(20000,total*0.20),prio:'high'});
+            if(salary > 50270) tips.push({title:state.lang==='en'?'Higher NI Rate':'高NI税率',desc:state.lang==='en'?'NI drops to 2% over £50,270':'超过£50,270后NI降至2%',savings:0,prio:'medium'});
+            if(salary > 0) tips.push({title:state.lang==='en'?'Pension Relief':'养老金退税',desc:state.lang==='en'?'Save NI + Tax on contributions':'养老金缴纳可省NI+所得税',savings:Math.min(40000,salary*0.08+salary*0.20),prio:'high'});
+            if(state.isSelfEmployed) tips.push({title:state.lang==='en'?'Class 2 NIC':'Class 2国民保险',desc:state.lang==='en'?'£3.45/week flat rate optional':'可选择每周£3.45固定费率',savings:179,prio:'medium'});
+            s.innerHTML = tips.map(t=>
+                `<div class="suggestion-item animate-in"><div class="suggestion-header"><span class="suggestion-title">${t.title}</span><span class="suggestion-badge ${t.prio}">${t.prio==='high'?'High':'Medium'}</span></div><div class="suggestion-desc">${t.desc}</div>${t.savings?`<div class="suggestion-savings">£${Math.round(t.savings).toLocaleString()} ${state.lang==='en'?'potential savings':'潜在节省'}</div>`:''}</div>`).join('');
         }
         
         function openModal(type) { document.getElementById(`modal-${type}`).classList.add('active'); }
@@ -316,10 +350,11 @@
         
         function updateTaxYear() { state.taxYear = document.getElementById('tax-year-select').value; renderAll(); saveData(); }
         function toggleScottish() { state.isScottish = !state.isScottish; document.getElementById('scottish-toggle').classList.toggle('active',state.isScottish); saveData(); }
+        function toggleSelf() { state.isSelfEmployed = !state.isSelfEmployed; document.getElementById('self-toggle').classList.toggle('active',state.isSelfEmployed); saveData(); }
         function clearAllData() { if(confirm(state.lang==='zh'?'确定清除所有数据?':'Clear all data?')) { state.incomes=[]; state.deductions=[]; renderAll(); saveData(); } }
         
         function saveData() { localStorage.setItem('ukTaxData', JSON.stringify(state)); }
-        function loadData() { const d = localStorage.getItem('ukTaxData'); if(d) { state = JSON.parse(d); document.getElementById('tax-year-select').value = state.taxYear; document.getElementById('scottish-toggle').classList.toggle('active',state.isScottish); renderAll(); } }
+        function loadData() { const d = localStorage.getItem('ukTaxData'); if(d) { state = JSON.parse(d); document.getElementById('tax-year-select').value = state.taxYear; document.getElementById('scottish-toggle').classList.toggle('active',state.isScottish); document.getElementById('self-toggle').classList.toggle('active',state.isSelfEmployed); renderAll(); } }
         
         loadData();
     </script>
